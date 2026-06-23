@@ -1,6 +1,7 @@
 mod views;
 mod assets;
 mod app;
+mod utils;
 
 use gpui::*;
 use gpui_component::{

@@ -1,4 +1,4 @@
-use gpui::{prelude::FluentBuilder, *};
+use gpui::{*};
 use gpui_component::{
     Icon, Sizable, TitleBar, 
     h_flex, v_flex, 
@@ -10,11 +10,8 @@ use gpui_component::{
         h_resizable, resizable_panel, v_resizable
     }
 };
-use crate::views::{CircuitSettingsView, GateSelectorView, GateSettingsView, circuit_settings_view, gate_selector_view};
-
-use super::CircuitView;
-
-actions!(root_view, [ExitFullscreen]);
+use crate::views::{CircuitSettingsView, GateSelectorView, GateSettingsView, CircuitView};
+use crate::utils::dimensions;
 
 pub struct RootView {
     circuit_view: Entity<CircuitView>,
@@ -23,16 +20,11 @@ pub struct RootView {
     gate_settings_view: Entity<GateSettingsView>,
     
     active_tab_ix: usize,
-    checked: Vec<bool>,
 }
 
 impl RootView {
     
     pub fn new(window: &mut Window, cx: &mut App) -> Self {
-        cx.bind_keys([
-                KeyBinding::new("Escape", ExitFullscreen, None),
-            ]);
-
         let circuit_view = CircuitView::new(window, cx);
         let gate_selector_view = GateSelectorView::new(window, cx);
         let circuit_settings_view = CircuitSettingsView::new(window, cx);
@@ -43,8 +35,7 @@ impl RootView {
             gate_selector_view: gate_selector_view,
             circuit_settings_view: circuit_settings_view,
             gate_settings_view: gate_settings_view,
-            active_tab_ix: 0,
-            checked: vec![false; 10]
+            active_tab_ix: 0
         }
     }
     
@@ -59,7 +50,7 @@ impl RootView {
             .child(
                 h_flex()
                     .id("titlebar-actions")
-                    .px_2()
+                    .px(dimensions::PADDING)
                     .size_full()
                     .justify_end()
                     .child(
@@ -91,14 +82,8 @@ impl Render for RootView {
             0 => div().child(gate_settings_view),
             _ => div().child(circuit_settings_view),
         };
-        
-        
 
         div()
-            .on_action(|&ExitFullscreen, window, _cx| {
-                    println!("div version triggered!");
-                    window.toggle_fullscreen();
-                })
             .size_full()
             .child(
                 v_flex()
@@ -113,14 +98,14 @@ impl Render for RootView {
                                         .child(circuit_view)
                                     )
                                     .child(resizable_panel()
-                                        .size(px(280.))
-                                        .size_range(px(200.)..px(400.))
+                                        .size(dimensions::root_view::RIGHT_PANEL_SIZE)
+                                        .size_range(dimensions::root_view::RIGHT_PANEL_MIN..dimensions::root_view::RIGHT_PANEL_MAX)
                                         .child(gate_selector_view)
                                     )
                             ))
                             .child(resizable_panel()
-                                .size(px(280.))
-                                .size_range(px(200.)..px(400.))
+                                .size(dimensions::root_view::BOTTOM_PANEL_SIZE)
+                                .size_range(dimensions::root_view::BOTTOM_PANEL_MIN..dimensions::root_view::BOTTOM_PANEL_MAX)
                                 .child(
                                     v_flex()
                                         .size_full()
