@@ -11,9 +11,27 @@ use assets::CompositeAssets;
 
 // Declare actions in the "gpui_menu" namespace
 actions!(gpui_menu, [SaveFile, Quit]);
+actions!(app, [ExitFullscreen]);
 
 fn quit(_: &Quit, cx: &mut App) {
     cx.quit();
+}
+
+fn exit_fullscreen(_: &ExitFullscreen, cx: &mut App) {
+    if let Some(window) = cx.active_window() {
+        // Defer the update until the current keystroke event is finished
+        cx.defer(move |cx| {
+            let result = window.update(cx, |_root: AnyView, window: &mut Window, _cx: &mut App| {
+                if window.is_fullscreen(){
+                    window.toggle_fullscreen();
+                };
+            });
+            
+            if let Err(e) = result {
+                eprintln!("Failed to update window: {:?}", e);
+            }
+        });
+    }
 }
 
 fn main() {
@@ -24,6 +42,7 @@ fn main() {
 
         cx.activate(true);
         cx.on_action(quit);
+        cx.on_action(exit_fullscreen);
 
         // ── Menu bar setup ────────────────────────────────────────────────────
         // `set_menus` replaces the default GPUI menu bar with our own.
@@ -47,16 +66,27 @@ fn main() {
             },
         ]);
 
+        cx.bind_keys([
+            KeyBinding::new("Escape", ExitFullscreen, None),
+        ]);
+
         cx.on_window_closed(|cx| cx.quit()).detach();  // close app when closing the window.
 
         cx.spawn(async move |cx| {
-            cx.open_window(WindowOptions {
+            let window_options = WindowOptions {
                 titlebar: Some(TitleBar::title_bar_options()),
                 ..Default::default()
-            }, |window, cx| {
-                let view = cx.new(|cx| RootView::new(window,cx));
-                // This first level on the window, should be a Root.
-                cx.new(|cx| Root::new(view, window, cx))
+            };
+
+            let window = cx
+                .open_window(window_options, |_window, _cx| {
+                    let view = _cx.new(|cx| RootView::new(_window, cx));
+                    // This first level on the window, should be a Root.
+                    _cx.new(|cx| Root::new(view, _window, cx))
+                })?;
+
+            window.update(cx, |_, window, _| {
+                window.activate_window();
             })?;
 
             Ok::<_, anyhow::Error>(())

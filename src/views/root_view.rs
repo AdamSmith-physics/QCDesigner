@@ -11,6 +11,8 @@ use gpui_component::{
     }
 };
 
+actions!(root_view, [ExitFullscreen]);
+
 pub struct RootView {
     active_tab_ix: usize,
     checked: Vec<bool>,
@@ -18,7 +20,11 @@ pub struct RootView {
 
 impl RootView {
     
-    pub fn new(_: &mut Window, _cx: &mut Context<Self>) -> Self {
+    pub fn new(_: &mut Window, cx: &mut Context<Self>) -> Self {
+        cx.bind_keys([
+                KeyBinding::new("Escape", ExitFullscreen, None),
+            ]);
+
         Self { 
             active_tab_ix: 0,
             checked: vec![false; 10]
@@ -121,6 +127,10 @@ impl Render for RootView {
         let right_panel = self.render_right_panel(cx);
 
         div()
+            .on_action(|&ExitFullscreen, window, _cx| {
+                    println!("div version triggered!");
+                    window.toggle_fullscreen();
+                })
             .size_full()
             .child(
                 v_flex()
