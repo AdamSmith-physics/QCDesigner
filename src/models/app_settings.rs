@@ -8,6 +8,7 @@ pub struct AppSettings {
 
 impl Global for AppSettings {}
 
+#[allow(dead_code)]
 impl AppSettings {
     pub fn default() -> Self {
         Self {
