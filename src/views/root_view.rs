@@ -10,8 +10,8 @@ use gpui_component::{
         h_resizable, resizable_panel, v_resizable
     }
 };
-use crate::views::{CircuitSettingsView, GateSelectorView, GateSettingsView, CircuitView};
-use crate::utils::dimensions;
+use crate::views::{ CircuitSettingsView, GateSelectorView, GateSettingsView, CircuitView };
+use crate::utils::{ constants, dimensions };
 
 pub struct RootView {
     circuit_view: Entity<CircuitView>,
@@ -46,7 +46,10 @@ impl RootView {
 
     fn render_titlebar() -> impl IntoElement {
         TitleBar::new()
-            .child(Label::new("Title").px_2())
+            .child(
+                Label::new(constants::titlebar::TITLE_PLACEHOLDER)
+                .px(dimensions::PADDING)
+            )
             .child(
                 h_flex()
                     .id("titlebar-actions")
@@ -54,14 +57,14 @@ impl RootView {
                     .size_full()
                     .justify_end()
                     .child(
-                        Button::new("ok") 
+                        Button::new("export") 
                             .small()
                             .icon(Icon::default().path("assets/share.svg"))
-                            .label("Export")
+                            .label(constants::titlebar::EXPORT_LABEL)
                             .with_variant(ButtonVariant::Ghost)
                             .on_click(|_, _, cx| {
+                                // This stops the double click to maximise on titlebar behind button
                                 cx.stop_propagation();
-                                println!("Clicked!");
                             })
                     )
             )
@@ -111,15 +114,15 @@ impl Render for RootView {
                                         .size_full()
                                         .items_center()
                                         .child(
-                                            TabBar::new("underline")
+                                            TabBar::new("settings selector")
                                                 .w_full()
                                                 .menu(false)
                                                 .selected_index(self.active_tab_ix)
                                                 .on_click(cx.listener(|this, ix: &usize, window, cx| {
                                                     this.set_active_tab(*ix, window, cx);
                                                 }))
-                                                .child("Gate Settings")
-                                                .child("Circuit Setting")
+                                                .child(constants::root_view::GATE_SETTINGS)
+                                                .child(constants::root_view::CIRCUIT_SETTINGS)
                                         )
                                         .child(right_panel)
                                     )

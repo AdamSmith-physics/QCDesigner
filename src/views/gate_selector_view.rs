@@ -4,6 +4,8 @@ use gpui_component::{
     v_flex
 };
 
+use crate::utils::constants;
+
 pub struct GateSelectorView {}
 
 impl GateSelectorView {
@@ -22,7 +24,7 @@ impl Render for GateSelectorView {
                 TabBar::new("underline")
                     .w_full()
                     .selected_index(0)
-                    .child("Gate Selector")
+                    .child(constants::gate_selector::PANEL_TITLE)
             )
             .child("This is the gate selector!")
     }
