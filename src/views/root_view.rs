@@ -1,6 +1,6 @@
 use gpui::{*};
 use gpui_component::{
-    Icon, Sizable, TitleBar, 
+    Icon, Sizable, TitleBar, Theme,
     h_flex, v_flex, 
     button::*, 
     tab::*,
@@ -12,6 +12,7 @@ use gpui_component::{
 };
 use crate::views::{ CircuitSettingsView, GateSelectorView, GateSettingsView, CircuitView };
 use crate::utils::{ constants, dimensions };
+use crate::models::AppSettings;
 
 pub struct RootView {
     circuit_view: Entity<CircuitView>,
@@ -56,6 +57,19 @@ impl RootView {
                     .px(dimensions::PADDING)
                     .size_full()
                     .justify_end()
+                    .child(
+                        Button::new("theme toggle")
+                            .small()
+                            .label("toggle")
+                            .with_variant(ButtonVariant::Ghost)
+                            .on_click(|_, _, cx| {
+                                // This stops the double click to maximise on titlebar behind button
+                                cx.stop_propagation();
+                                let app_settings = cx.global_mut::<AppSettings>();
+                                app_settings.toggle_theme();
+                                Theme::change(app_settings.theme, None, cx);
+                            })
+                    )
                     .child(
                         Button::new("export") 
                             .small()
