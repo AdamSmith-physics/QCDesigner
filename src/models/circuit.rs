@@ -1,14 +1,14 @@
 
 #[derive(Clone,PartialEq, Eq)]
-struct Coordinate {
-    row: i32,
-    column: i32
+pub struct Coordinate {
+    pub row: usize,
+    pub column: usize
 }
 
 
 pub struct Circuit {
-    rows:  usize,
-    cols:  usize,
+    pub rows:  usize,
+    pub cols:  usize,
     selected_gates: Vec<Coordinate>,
     pub last_clicked: Option<(usize, usize)>,  // might move this out to an AppState?
 }

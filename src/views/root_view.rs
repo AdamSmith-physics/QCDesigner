@@ -29,10 +29,18 @@ impl RootView {
 
         let circuit = cx.new(|_| Circuit::default());
         
-        let circuit_view = cx.new(|cx| CircuitView::new(circuit.clone(), window, cx));
-        let gate_selector_view = cx.new(|cx| GateSelectorView::new(circuit.clone(), window, cx));
-        let circuit_settings_view = cx.new(|cx| CircuitSettingsView::new(circuit.clone(), window, cx));
-        let gate_settings_view = cx.new(|cx| GateSettingsView::new(circuit.clone(), window, cx));
+        let circuit_view = cx.new(|cx| {
+            CircuitView::new(circuit.clone(), window, cx)
+        });
+        let gate_selector_view = cx.new(|cx| {
+            GateSelectorView::new(circuit.clone(), window, cx)
+        });
+        let circuit_settings_view = cx.new(|cx| {
+            CircuitSettingsView::new(circuit.clone(), window, cx)
+        });
+        let gate_settings_view = cx.new(|cx| {
+            GateSettingsView::new(circuit.clone(), window, cx)
+        });
 
         Self { 
             circuit_view: circuit_view,
