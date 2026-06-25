@@ -4,19 +4,25 @@ use gpui_component::{
     Sizable,
     v_flex,
 };
+use crate::models::Circuit;
 
-pub struct GateSettingsView {    
+pub struct GateSettingsView {  
+    circuit: Entity<Circuit>, 
+    
     checked: Vec<bool>,
 }
 
 impl GateSettingsView {
-pub fn new(_: &mut Window, cx: &mut App) -> Entity<Self> {
-    cx.new(|_cx| {
+    pub fn new(circuit: Entity<Circuit>, _: &mut Window, cx: &mut Context<Self>) -> Self {
+        cx.observe(&circuit, |_,_entity, cx| {
+            cx.notify()
+        }).detach();
+        
         Self {
+            circuit: circuit,
             checked: vec![false; 10],
         }
-    })
-}
+    }
 }
 
 impl Render for GateSettingsView {

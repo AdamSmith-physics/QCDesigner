@@ -3,16 +3,23 @@ use gpui_component::{
     tab::TabBar,
     v_flex
 };
+use crate::models::Circuit;
 
 use crate::utils::constants;
 
-pub struct GateSelectorView {}
+pub struct GateSelectorView {
+    circuit: Entity<Circuit>,
+}
 
 impl GateSelectorView {
-    pub fn new(_: &mut Window, cx: &mut App) -> Entity<Self> {
-        cx.new(|_cx| {
-            Self {}
-        })
+    pub fn new(circuit: Entity<Circuit>, _: &mut Window, cx: &mut Context<Self>) -> Self {
+        cx.observe(&circuit, |_,_entity, cx| {
+            cx.notify()
+        }).detach();
+        
+        Self {
+            circuit: circuit,
+        }
     }
 }
 

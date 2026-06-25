@@ -3,14 +3,23 @@ use gpui_component::{
     button::Button,
     v_flex
 };
+use crate::models::Circuit;
 
-pub struct CircuitView {}
+pub struct CircuitView {
+    circuit: Entity<Circuit>,
+    
+}
 
 impl CircuitView {
-    pub fn new(_: &mut Window, cx: &mut App) -> Entity<Self> {
-        cx.new(|_cx| {
-            Self {}
-        })
+    pub fn new(circuit: Entity<Circuit>, _: &mut Window, cx: &mut Context<Self>) -> Self {
+
+        cx.observe(&circuit, |_,_entity, cx| {
+            cx.notify()
+        }).detach();
+        
+        Self {
+            circuit: circuit,
+        }
     }
 }
 

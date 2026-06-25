@@ -3,6 +3,7 @@ mod assets;
 mod models;
 mod app;
 mod utils;
+mod components;
 
 use gpui::*;
 use gpui_component::{
