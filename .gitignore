@@ -30,3 +30,5 @@ HFS+ Extended Data.fork
 
 # opencode
 .opencode/
+.sofa/credentials.json
+.sofa/

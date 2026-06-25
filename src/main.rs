@@ -1,6 +1,8 @@
 mod views;
 mod assets;
+mod models;
 mod app;
+mod utils;
 
 use gpui::*;
 use gpui_component::{
@@ -9,6 +11,8 @@ use gpui_component::{
 
 use views::RootView;
 use assets::CompositeAssets;
+use models::AppSettings;
+
 
 fn main() {
     Application::new().with_assets(CompositeAssets).run(move |cx| {
@@ -18,6 +22,8 @@ fn main() {
 
         cx.activate(true);
         app::init(cx);
+
+        AppSettings::set_global(cx, AppSettings::default());
 
         cx.on_window_closed(|cx| cx.quit()).detach();  // close app when closing the window.
 

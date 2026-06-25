@@ -1,6 +1,6 @@
-use gpui::*;
+use gpui::{*};
 use gpui_component::{
-    Icon, Sizable, TitleBar, 
+    Icon, Sizable, TitleBar, Theme,
     h_flex, v_flex, 
     button::*, 
     tab::*,
@@ -10,24 +10,33 @@ use gpui_component::{
         h_resizable, resizable_panel, v_resizable
     }
 };
-
-actions!(root_view, [ExitFullscreen]);
+use crate::views::{ CircuitSettingsView, GateSelectorView, GateSettingsView, CircuitView };
+use crate::utils::{ constants, dimensions };
+use crate::models::AppSettings;
 
 pub struct RootView {
+    circuit_view: Entity<CircuitView>,
+    gate_selector_view: Entity<GateSelectorView>,
+    circuit_settings_view: Entity<CircuitSettingsView>,
+    gate_settings_view: Entity<GateSettingsView>,
+    
     active_tab_ix: usize,
-    checked: Vec<bool>,
 }
 
 impl RootView {
     
-    pub fn new(_: &mut Window, cx: &mut Context<Self>) -> Self {
-        cx.bind_keys([
-                KeyBinding::new("Escape", ExitFullscreen, None),
-            ]);
+    pub fn new(window: &mut Window, cx: &mut App) -> Self {
+        let circuit_view = CircuitView::new(window, cx);
+        let gate_selector_view = GateSelectorView::new(window, cx);
+        let circuit_settings_view = CircuitSettingsView::new(window, cx);
+        let gate_settings_view = GateSettingsView::new(window, cx);
 
         Self { 
-            active_tab_ix: 0,
-            checked: vec![false; 10]
+            circuit_view: circuit_view,
+            gate_selector_view: gate_selector_view,
+            circuit_settings_view: circuit_settings_view,
+            gate_settings_view: gate_settings_view,
+            active_tab_ix: 0
         }
     }
     
@@ -36,85 +45,43 @@ impl RootView {
         cx.notify();
     }
 
-    fn render_right_panel(&self, cx: &Context<Self>) -> impl IntoElement {
-        v_flex()
-            .gap_2()
-            .size_full()
-            .items_center()
-            .child(
-                TabBar::new("underline")
-                    .w_full()
-                    .menu(false)
-                    .selected_index(self.active_tab_ix)
-                    .on_click(cx.listener(|this, ix: &usize, window, cx| {
-                        this.set_active_tab(*ix, window, cx);
-                    }))
-                    .child("Gate Settings")
-                    .child("Circuit Setting")
-            )
-            .child(format!("Selected tab: {}", self.active_tab_ix))
-            .child(
-                Button::new("ok")
-                    .label("Let's Go!")
-                    .on_click(|_, _, _| println!("Clicked!")),
-            )
-            .child(
-                ToggleGroup::new("toggle-button-group-segmented-outline")
-                    .small()
-                    .outline()
-                    .children((0..10).map(|row| {
-                        Toggle::new(row).label(format!("{}", row)).checked(self.checked[row])
-                    }))
-            )
-    }
-
     fn render_titlebar() -> impl IntoElement {
         TitleBar::new()
-            .child(Label::new("Title").px_2())
+            .child(
+                Label::new(constants::titlebar::TITLE_PLACEHOLDER)
+                .px(dimensions::PADDING)
+            )
             .child(
                 h_flex()
                     .id("titlebar-actions")
-                    .px_2()
+                    .px(dimensions::PADDING)
                     .size_full()
                     .justify_end()
                     .child(
-                        Button::new("ok") 
+                        Button::new("theme toggle")
                             .small()
-                            .icon(Icon::default().path("assets/share.svg"))
-                            .label("Export")
+                            .label("toggle")
                             .with_variant(ButtonVariant::Ghost)
                             .on_click(|_, _, cx| {
+                                // This stops the double click to maximise on titlebar behind button
                                 cx.stop_propagation();
-                                println!("Clicked!");
+                                let app_settings = cx.global_mut::<AppSettings>();
+                                app_settings.toggle_theme();
+                                Theme::change(app_settings.theme, None, cx);
+                            })
+                    )
+                    .child(
+                        Button::new("export") 
+                            .small()
+                            .icon(Icon::default().path("assets/share.svg"))
+                            .label(constants::titlebar::EXPORT_LABEL)
+                            .with_variant(ButtonVariant::Ghost)
+                            .on_click(|_, _, cx| {
+                                // This stops the double click to maximise on titlebar behind button
+                                cx.stop_propagation();
                             })
                     )
             )
-    }
-
-    fn render_left_content() -> impl IntoElement {
-        v_flex()
-            .gap_2()
-            .size_full()
-            .items_center()
-            .justify_center()
-            .child("Hello, World!")
-            .child(
-                Button::new("ok")
-                    .label("Let's Go!")
-                    .on_click(|_, _, _| println!("Clicked!")),
-            )
-    }
-
-    fn render_gate_selector() -> impl IntoElement {
-        v_flex()
-            .size_full()
-            .child(
-                TabBar::new("underline")
-                    .w_full()
-                    .selected_index(0)
-                    .child("Gate Selector")
-            )
-            .child("Content")
     }
 
 }
@@ -122,15 +89,18 @@ impl RootView {
 impl Render for RootView {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let titlebar = Self::render_titlebar();
-        let left_content = Self::render_left_content();
-        let gate_selector = Self::render_gate_selector();
-        let right_panel = self.render_right_panel(cx);
+
+        let circuit_view = self.circuit_view.clone();
+        let gate_selector_view = self.gate_selector_view.clone();
+        let circuit_settings_view = self.circuit_settings_view.clone();
+        let gate_settings_view = self.gate_settings_view.clone();
+
+        let right_panel = match self.active_tab_ix {
+            0 => div().child(gate_settings_view),
+            _ => div().child(circuit_settings_view),
+        };
 
         div()
-            .on_action(|&ExitFullscreen, window, _cx| {
-                    println!("div version triggered!");
-                    window.toggle_fullscreen();
-                })
             .size_full()
             .child(
                 v_flex()
@@ -141,17 +111,35 @@ impl Render for RootView {
                         h_resizable("main")
                             .child(resizable_panel().child(
                                 v_resizable("vertical resize")
-                                    .child(resizable_panel().child(left_content))
                                     .child(resizable_panel()
-                                        .size(px(280.))
-                                        .size_range(px(200.)..px(400.))
-                                        .child(gate_selector)
+                                        .child(circuit_view)
+                                    )
+                                    .child(resizable_panel()
+                                        .size(dimensions::root_view::RIGHT_PANEL_SIZE)
+                                        .size_range(dimensions::root_view::RIGHT_PANEL_MIN..dimensions::root_view::RIGHT_PANEL_MAX)
+                                        .child(gate_selector_view)
                                     )
                             ))
                             .child(resizable_panel()
-                                .size(px(280.))
-                                .size_range(px(200.)..px(400.))
-                                .child(right_panel)
+                                .size(dimensions::root_view::BOTTOM_PANEL_SIZE)
+                                .size_range(dimensions::root_view::BOTTOM_PANEL_MIN..dimensions::root_view::BOTTOM_PANEL_MAX)
+                                .child(
+                                    v_flex()
+                                        .size_full()
+                                        .items_center()
+                                        .child(
+                                            TabBar::new("settings selector")
+                                                .w_full()
+                                                .menu(false)
+                                                .selected_index(self.active_tab_ix)
+                                                .on_click(cx.listener(|this, ix: &usize, window, cx| {
+                                                    this.set_active_tab(*ix, window, cx);
+                                                }))
+                                                .child(constants::root_view::GATE_SETTINGS)
+                                                .child(constants::root_view::CIRCUIT_SETTINGS)
+                                        )
+                                        .child(right_panel)
+                                    )
                             )
                     )
             )
