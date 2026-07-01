@@ -7,6 +7,14 @@ use gpui_component::{
 use crate::models::{Coordinate, Circuit};
 use crate::components::{ ScrollCenter, MeasuredElement, gate_button };
 
+// Temporary constants
+const BUTTON_SIZE: f32 = 30.0;
+const LINE_THICKNESS: f32 = 1.0;
+const ROW_GAP: f32 = 8.0;
+
+
+
+
 pub struct CircuitView {
     circuit: Entity<Circuit>,
 
@@ -59,93 +67,20 @@ impl Render for CircuitView {
                 }
             });
         };
-    
-        // // ── Snapshot state ────────────────────────────────────────────────────
-        // // Read everything needed for rendering in one borrow, then drop it so
-        // // cx is free for cx.listener calls in the grid loop below.
-        // let (button_size, row_gap, col_gap, line_thickness, num_rows, num_cols, has_cnot) = {
-        //     let circuit = self.circuit.read(cx);
-        //     let s     = &state.settings;
-        //     let c     = &state.circuit;
-        //     // Pre-compute the full CNOT occupancy matrix so we never need to
-        //     // re-borrow state inside the loop.
-        //     let has_cnot: Vec<Vec<bool>> = (0..c.cols())
-        //         .map(|col| (0..c.rows()).map(|row| c.has_cnot_at(col, row)).collect())
-        //         .collect();
-        //     (s.button_size, s.row_gap, s.col_gap, s.line_thickness, c.rows(), c.cols(), has_cnot)
-        // };
-        // let bg = cx.theme().background;
-    
-        // // ── Grid ──────────────────────────────────────────────────────────────
-        // let mut col_divs: Vec<AnyElement> = Vec::new();
-        // for col in 0..num_cols {
-        //     let mut col_elems: Vec<AnyElement> = Vec::new();
-        //     let mut row = 0usize;
-        //     while row < num_rows {
-        //         if has_cnot[col][row] {
-        //             col_elems.push(cnot_element(
-        //                 bg, button_size, row_gap, line_thickness,
-        //                 cx.listener(move |this: &mut CircuitView, _, _, cx| {
-        //                     this.state.update(cx, |s, cx: &mut Context<AppState>| {
-        //                         s.circuit.remove_cnot(col, row);
-        //                         cx.notify();
-        //                     });
-        //                 }),
-        //             ));
-        //             row += 2;
-        //         } else {
-        //             col_elems.push(gate_button(
-        //                 button_size,
-        //                 cx.listener(move |this: &mut CircuitView, _, _, cx| {
-        //                     this.state.update(cx, |s, cx: &mut Context<AppState>| {
-        //                         s.circuit.place_cnot(col, row);
-        //                         s.last_clicked = Some((col, row));
-        //                         cx.notify();
-        //                     });
-        //                 }),
-        //             ));
-        //             row += 1;
-        //         }
-        //     }
-        //     col_divs.push(
-        //         div().flex().flex_col().gap(px(row_gap)).children(col_elems).into_any_element(),
-        //     );
-        // }
-    
-        // let grid = div()
-        //     .flex().flex_row().items_start()
-        //     .gap(px(col_gap))
-        //     .children(col_divs);
-    
-        // // ── Background wire canvas ────────────────────────────────────────────
-        // let wire_canvas = canvas(
-        //     |_bounds, _window, _cx| {},
-        //     move |bounds, _state, window, _cx| {
-        //         for row in 0..num_rows {
-        //             let y = bounds.origin.y
-        //                 + px(row as f32 * (button_size + row_gap) + button_size / 2.0);
-        //             window.paint_quad(fill(
-        //                 Bounds {
-        //                     origin: point(bounds.origin.x, y - px(line_thickness / 2.0)),
-        //                     size:   size(bounds.size.width, px(line_thickness)),
-        //                 },
-        //                 black(),
-        //             ));
-        //         }
-        //     },
-        // )
-        // .absolute().top(px(0.0)).bottom(px(0.0)).left(px(0.0)).right(px(0.0));
-
+       
+        
         let circuit = self.circuit.read(cx);
+        let num_rows = circuit.rows;
+        let num_cols = circuit.cols;
         
         let mut col_divs: Vec<AnyElement> = Vec::new();
-        for col in 0..circuit.cols {
+        for col in 0..num_cols {
             let mut col_elems: Vec<AnyElement> = Vec::new();
             let mut row = 0usize;
-            while row < circuit.rows {
+            while row < num_rows {
                 
                 col_elems.push(gate_button(
-                    30.0,
+                    BUTTON_SIZE,
                     cx.listener(move |this: &mut CircuitView, _, _, cx| {
                         this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
                             let coordinate = Coordinate{ row: row, column: col };
@@ -159,13 +94,36 @@ impl Render for CircuitView {
             }
         
             col_divs.push(
-                div().flex().flex_col().gap(px(8.0)).children(col_elems).into_any_element(),
+                div().flex().flex_col().gap(px(ROW_GAP)).children(col_elems).into_any_element(),
             );
         }
 
+
+        // ── Background wire canvas ────────────────────────────────────────────
+        let wire_canvas = canvas(
+            |_bounds, _window, _cx| {},
+            move |bounds, _state, window, _cx| {
+                for row in 0..num_rows {
+                    let y = bounds.origin.y
+                        + px(row as f32 * (BUTTON_SIZE + ROW_GAP) + BUTTON_SIZE / 2.0);
+                    window.paint_quad(fill(
+                        Bounds {
+                            origin: point(bounds.origin.x, y - px(LINE_THICKNESS / 2.0)),
+                            size:   size(bounds.size.width, px(LINE_THICKNESS)),
+                        },
+                        black(),
+                    ));
+                }
+            },
+        )
+        .absolute().top(px(0.0)).bottom(px(0.0)).left(px(0.0)).right(px(0.0));
+        
+
         let content = div()
             .flex().flex_row().items_start()
-            .gap(px(8.0))
+            .px(px(ROW_GAP)) // Controls how much the wires stick out!
+            .child(wire_canvas)
+            .gap(px(ROW_GAP))
             .children(col_divs);
     
         let measured_content = MeasuredElement::new(content).on_width(on_width_cb);
