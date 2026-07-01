@@ -55,9 +55,26 @@ impl Circuit {
         }
         gate_number as i32
     }
+
+    pub fn set_rows(&mut self, num_rows: i64) {
+        self.rows = num_rows as usize;
+    }
+
+    pub fn decrease_rows(&mut self) {
+        if self.rows > 1 {
+            self.rows = self.rows - 1;
+        }
+    }
+
+    pub fn increase_rows(&mut self) {
+        if self.rows < 10 {
+            self.rows = self.rows + 1;
+        }
+    }
+    
 }
 
 impl Default for Circuit {
     /// Creates a 10 × 10 circuit.  Use `Circuit::new(rows, cols)` for other sizes.
-    fn default() -> Self { Self::new(10, 10) }
+    fn default() -> Self { Self::new(3, 10) }
 }
