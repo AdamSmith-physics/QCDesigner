@@ -25,7 +25,6 @@ impl CircuitSettingsView {
             cx.notify()
         }).detach();
 
-        let number_input1_value = 1;
         let number_input1 = cx.new(|cx| {
             InputState::new(window, cx)
                 .placeholder("Normal Integer")
@@ -44,7 +43,6 @@ impl CircuitSettingsView {
             _subscriptions: _subscriptions,
         }
     }
-
 
     fn on_input_event(
         &mut self,
@@ -80,26 +78,18 @@ impl CircuitSettingsView {
         cx: &mut Context<Self>,
     ) {
         match event {
-            NumberInputEvent::Step(step_action) => match step_action {
-                StepAction::Decrement => {
-                    self.circuit.update(cx, |circuit, cx| {
-                        circuit.decrease_rows();
-                        cx.notify();
-                    });
-                    this.update(cx, |input, cx| {
-                        input.set_value(self.circuit.read(cx).rows.to_string(), window, cx);
-                    });
-                }
-                StepAction::Increment => {
-                    self.circuit.update(cx, |circuit, cx| {
-                        circuit.increase_rows();
-                        cx.notify();
-                    });
-                    this.update(cx, |input, cx| {
-                        input.set_value(self.circuit.read(cx).rows.to_string(), window, cx);
-                    });
-                }
-            },
+            NumberInputEvent::Step(step_action) => {
+                self.circuit.update(cx, |circuit, cx| {
+                    match step_action {
+                        StepAction::Decrement => circuit.decrease_rows(),
+                        StepAction::Increment => circuit.increase_rows(),
+                    }
+                    cx.notify();
+                });
+                this.update(cx, |input, cx| {
+                    input.set_value(self.circuit.read(cx).rows.to_string(), window, cx);
+                });
+            }
         }
     }  
 }
@@ -112,8 +102,6 @@ impl Focusable for CircuitSettingsView {
 
 impl Render for CircuitSettingsView {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-
-        let circuit = self.circuit.read(cx);
         
         v_flex()
             .p_2()
