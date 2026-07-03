@@ -109,11 +109,15 @@ impl CircuitSettingsView {
         &mut self,
         state: &Entity<InputState>,
         event: &InputEvent,
-        _: &mut Window,
+        window: &mut Window,
         cx: &mut Context<Self>,
     ) {
         match event {
             InputEvent::Change => {
+                let text = state.read(cx).value();
+                println!("Change: {}", text);
+            }
+            InputEvent::PressEnter { secondary } => {
                 let text = state.read(cx).value();
                 if let (Ok(value_int), Ok(value_float)) = (text.parse::<i64>(), text.parse::<f32>()) {
                     if state == &self.num_qubits_input {
@@ -137,9 +141,9 @@ impl CircuitSettingsView {
                     }
                     
                 }
-                println!("Change: {}", text);
-            }
-            InputEvent::PressEnter { secondary } => {
+                state.update(cx, |state, cx| {
+                    state.set_value(self.circuit.read(cx).rows.to_string(), window, cx);
+                });
                 println!("PressEnter secondary: {}", secondary)
             }
             InputEvent::Focus => println!("Focus"),
@@ -150,7 +154,7 @@ impl CircuitSettingsView {
     /// Handles increment/decrement from the NumberInput step buttons.
     fn on_number_input_event(
         &mut self,
-        this: &Entity<InputState>,
+        state: &Entity<InputState>,
         event: &NumberInputEvent,
         window: &mut Window,
         cx: &mut Context<Self>,
@@ -159,12 +163,40 @@ impl CircuitSettingsView {
             NumberInputEvent::Step(step_action) => {
                 self.circuit.update(cx, |circuit, cx| {
                     match step_action {
-                        StepAction::Decrement => circuit.decrease_rows(),
-                        StepAction::Increment => circuit.increase_rows(),
+                        StepAction::Decrement => {
+                            if state == &self.num_qubits_input {
+                                circuit.decrease_rows();
+                            } else if state == &self.gate_size_input {
+                                
+                            } else if state == &self.line_thickness_input {
+                                
+                            } else if state == &self.corner_radius_input {
+                                
+                            } else if state == &self.row_gap_input {
+                                
+                            } else if state == &self.column_gap_input {
+                                
+                            }
+                        }
+                        StepAction::Increment => {
+                            if state == &self.num_qubits_input {
+                                circuit.increase_rows();
+                            } else if state == &self.gate_size_input {
+                                
+                            } else if state == &self.line_thickness_input {
+                                
+                            } else if state == &self.corner_radius_input {
+                                
+                            } else if state == &self.row_gap_input {
+                                
+                            } else if state == &self.column_gap_input {
+                                
+                            }
+                        },
                     }
                     cx.notify();
                 });
-                this.update(cx, |input, cx| {
+                state.update(cx, |input, cx| {
                     input.set_value(self.circuit.read(cx).rows.to_string(), window, cx);
                 });
             }
