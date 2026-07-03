@@ -8,6 +8,7 @@ use crate::models::Circuit;
 use crate::utils::constants;
 
 pub struct GateSelectorView {
+    // Models
     circuit: Entity<Circuit>,
 }
 

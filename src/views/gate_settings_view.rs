@@ -6,9 +6,12 @@ use gpui_component::{
 };
 use crate::models::Circuit;
 
+#[allow(dead_code)]
 pub struct GateSettingsView {  
+    // Models
     circuit: Entity<Circuit>, 
-    
+
+    // Private fields
     checked: Vec<bool>,
 }
 

@@ -1,11 +1,9 @@
 use gpui::*;
-use gpui_component::{
-    Theme,
-    button::Button,
-    v_flex
-};
 use crate::models::{Coordinate, Circuit};
 use crate::components::{ ScrollCenter, MeasuredElement, add_gate_button, gate_button };
+
+// --- end of imports ---
+
 
 // Temporary constants
 const BUTTON_SIZE: f32 = 30.0;
@@ -14,10 +12,13 @@ const ROW_GAP: f32 = 8.0;
 
 
 
-
+/// --- CircuitView ---
+/// View for showing the circuit. Wraps the circuit in ScrollCenter
 pub struct CircuitView {
+    // Models
     circuit: Entity<Circuit>,
 
+    // Private fields
     scroll_handle: ScrollHandle,
     /// Taffy-resolved content width from the previous frame; fed back into
     /// ScrollCenter so content doesn't collapse when the viewport is narrower.
@@ -41,18 +42,7 @@ impl CircuitView {
 
 impl Render for CircuitView {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        //     v_flex()
-        //         .gap_2()
-        //         .size_full()
-        //         .items_center()
-        //         .justify_center()
-        //         .child("This is the circuit view!")
-        //         .child(
-        //             Button::new("ok")
-        //                 .label("Let's Go!")
-        //                 .on_click(|_, _, _| println!("Clicked!")),
-        //         )
-        // }
+
         // ── Content-width measurement callback ────────────────────────────────
         let weak = cx.weak_entity();
         let on_width_cb = move |width: Pixels, window: &mut Window, cx: &mut App| {
@@ -121,7 +111,7 @@ impl Render for CircuitView {
         }
 
 
-        // ── Background wire canvas ────────────────────────────────────────────
+        // ── Background wire canvas ---
         let wire_canvas = canvas(
             |_bounds, _window, _cx| {},
             move |bounds, _state, window, _cx| {
@@ -150,7 +140,7 @@ impl Render for CircuitView {
     
         let measured_content = MeasuredElement::new(content).on_width(on_width_cb);
     
-        // ── Root element ──────────────────────────────────────────────────────
+        // ── Root element ---
         div().flex_1().min_w(px(0.0)).flex().flex_col()
             .child( 
                 ScrollCenter::new(self.scroll_handle.clone(), measured_content)

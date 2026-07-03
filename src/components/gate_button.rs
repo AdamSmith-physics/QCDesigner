@@ -1,8 +1,6 @@
 use gpui::*;
 
-// Colours used by gate_button — fixed regardless of theme.
-const BUTTON_BG: Hsla = Hsla { h: 0., s: 0., l: 1.0,  a: 1.0 }; // white
-const BUTTON_FG: Hsla = Hsla { h: 0., s: 0., l: 0.0,  a: 1.0 }; // black
+use crate::utils::constants::gate_button as constants;
 
 // ── gate_button ───────────────────────────────────────────────────────────────
 //
@@ -22,8 +20,8 @@ pub fn gate_button(
         .justify_center()
         .w(px(button_size)).h(px(button_size))
         .rounded(px(4.0)).border(px(1.0))
-        .border_color(BUTTON_FG)
-        .bg(BUTTON_BG)
+        .border_color(constants::BUTTON_FG)
+        .bg(constants::BUTTON_BG)
         .hover(|style| style.border(px(2.0)))
         .cursor_pointer()
         .child(format!("{}", button_number))

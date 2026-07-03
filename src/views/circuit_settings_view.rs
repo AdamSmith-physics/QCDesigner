@@ -6,14 +6,24 @@ use gpui_component::{
     v_flex, h_flex,
 };
 use crate::models::Circuit;
+use crate::utils::dimensions;
 
+// --- end of imports ---
+
+
+/// --- CircuitSettingsView ---
+/// View for editing the global settings for the circuit. 
 pub struct CircuitSettingsView {
+    // Models
     circuit: Entity<Circuit>,
 
+    // Other Entities
     number_input1: Entity<InputState>,
-    
+
+    // Private fields
     checked: Vec<bool>,
 
+    // Subscriptions
     _subscriptions: Vec<Subscription>,
 }
 
@@ -42,6 +52,7 @@ impl CircuitSettingsView {
         }
     }
 
+    // For inputs in settings
     fn on_input_event(
         &mut self,
         state: &Entity<InputState>,
@@ -68,6 +79,7 @@ impl CircuitSettingsView {
         }
     }
 
+    // For registering the steppers in the NumberInput
     fn on_number_input_event(
         &mut self,
         this: &Entity<InputState>,
@@ -92,14 +104,16 @@ impl CircuitSettingsView {
     }  
 }
 
+// Implement focussable for inputs
 impl Focusable for CircuitSettingsView {
     fn focus_handle(&self, cx: &gpui::App) -> gpui::FocusHandle {
         self.number_input1.focus_handle(cx)
     }
 }
 
+// Render the view
 impl Render for CircuitSettingsView {
-    fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, _: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
         
         v_flex()
             .p_2()
@@ -123,7 +137,7 @@ impl Render for CircuitSettingsView {
             .child(
                 h_flex()
                     .justify_center()
-                    .min_w(px(150.0))
+                    .min_w(dimensions::NUMBER_INPUT_WIDTH)
                     .child(NumberInput::new(&self.number_input1))
             )
     }

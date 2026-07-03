@@ -14,12 +14,16 @@ use crate::views::{ CircuitSettingsView, GateSelectorView, GateSettingsView, Cir
 use crate::utils::{ constants, dimensions };
 use crate::models::{ AppSettings, Circuit };
 
+// --- end of imports ---
+
 pub struct RootView {
+    // Views
     circuit_view: Entity<CircuitView>,
     gate_selector_view: Entity<GateSelectorView>,
     circuit_settings_view: Entity<CircuitSettingsView>,
     gate_settings_view: Entity<GateSettingsView>,
-    
+
+    // Private fields
     active_tab_ix: usize,
 }
 
