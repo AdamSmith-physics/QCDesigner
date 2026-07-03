@@ -1,3 +1,8 @@
+use crate::{models::RenderSettings, utils::defaults::render_settings};
+
+// --- End of imports ---
+
+
 /// Position in the circuit grid.
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Coordinate {
@@ -9,6 +14,8 @@ pub struct Coordinate {
 pub struct Circuit {
     pub rows:  usize,
     pub cols:  usize,
+    
+    pub render_settings: RenderSettings,
     selected_gates: Vec<Coordinate>,
     pub last_clicked: Option<Coordinate>,
 }
@@ -16,9 +23,12 @@ pub struct Circuit {
 impl Circuit {
     /// Create a new circuit with the given grid dimensions.
     pub fn new(rows: usize, columns: usize) -> Self {
+        let render_settings = RenderSettings::default();
+        
         Self {
             rows: rows,
             cols: columns,
+            render_settings: render_settings,
             selected_gates: Vec::new(),
             last_clicked: None,
         }
