@@ -1,5 +1,5 @@
 
-#[derive(Clone,PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Coordinate {
     pub row: usize,
     pub column: usize
@@ -10,7 +10,7 @@ pub struct Circuit {
     pub rows:  usize,
     pub cols:  usize,
     selected_gates: Vec<Coordinate>,
-    pub last_clicked: Option<(usize, usize)>,  // might move this out to an AppState?
+    pub last_clicked: Option<Coordinate>,  // might move this out to an AppState?
 }
 
 
@@ -27,6 +27,7 @@ impl Circuit {
     pub fn add_gate(&mut self, coordinate: Coordinate) {
         if self.is_selected(&coordinate) { return };
         self.selected_gates.push(coordinate);
+        self.last_clicked = Some(coordinate);
     } 
     
     pub fn remove_gate(&mut self, coordinate: &Coordinate) {
@@ -35,9 +36,10 @@ impl Circuit {
                 self.selected_gates.remove(ii);
             }
         }
+        self.last_clicked = None;
     }
     
-    pub fn is_selected(&mut self, coordinate: &Coordinate) -> bool {
+    pub fn is_selected(&self, coordinate: &Coordinate) -> bool {
         for gate in self.selected_gates.clone() {
             if gate == *coordinate {
                 return true

@@ -1,5 +1,3 @@
-use std::ops::DerefMut;
-
 use gpui::*;
 use gpui_component::{
     button::{Button, Toggle, ToggleGroup, ToggleVariants},

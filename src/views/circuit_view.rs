@@ -5,7 +5,7 @@ use gpui_component::{
     v_flex
 };
 use crate::models::{Coordinate, Circuit};
-use crate::components::{ ScrollCenter, MeasuredElement, gate_button };
+use crate::components::{ ScrollCenter, MeasuredElement, add_gate_button, gate_button };
 
 // Temporary constants
 const BUTTON_SIZE: f32 = 30.0;
@@ -78,18 +78,40 @@ impl Render for CircuitView {
             let mut col_elems: Vec<AnyElement> = Vec::new();
             let mut row = 0usize;
             while row < num_rows {
-                
-                col_elems.push(gate_button(
-                    BUTTON_SIZE,
-                    cx.listener(move |this: &mut CircuitView, _, _, cx| {
-                        this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
-                            let coordinate = Coordinate{ row: row, column: col };
-                            circ.add_gate(coordinate);
-                            println!("button clicked!");
-                            cx.notify();
-                        });
-                    }),
-                ));
+
+                let coord = Coordinate {row: row, column: col};
+
+                match circuit.is_selected(&coord) {
+
+                    // Add button for adding gates
+                    false => {
+                        col_elems.push(add_gate_button(
+                            BUTTON_SIZE,
+                            cx.listener(move |this: &mut CircuitView, _, _, cx| {
+                                this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
+                                    circ.add_gate(coord);
+                                    println!("button clicked!");
+                                    cx.notify();
+                                });
+                            }),
+                        ));
+                    },
+
+                    // Add button with number selected.
+                    true => {
+                        col_elems.push(gate_button(
+                            BUTTON_SIZE,
+                            circuit.get_gate_number(&coord),
+                            cx.listener(move |this: &mut CircuitView, _, _, cx| {
+                                this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
+                                    circ.remove_gate(&coord);
+                                    println!("button clicked!");
+                                    cx.notify();
+                                });
+                            }),
+                        ));
+                    }
+                };
                 row += 1;
             }
         
