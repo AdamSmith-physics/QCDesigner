@@ -3,7 +3,7 @@ use gpui::{Pixels, px};
 // --- Global dimensions ---
 
 pub const PADDING: Pixels = px(8.0);
-pub const NUMBER_INPUT_WIDTH: Pixels = px(150.0);
+pub const NUMBER_INPUT_WIDTH: Pixels = px(120.0);
 
 // --- RootView panel sizes ---
 

@@ -115,8 +115,8 @@ impl Render for RootView {
         let gate_settings_view = self.gate_settings_view.clone();
 
         let right_panel = match self.active_tab_ix {
-            0 => div().child(gate_settings_view),
-            _ => div().child(circuit_settings_view),
+            0 => div().w_full().child(gate_settings_view),
+            _ => div().w_full().child(circuit_settings_view),
         };
 
         div()

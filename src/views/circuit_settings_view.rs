@@ -5,7 +5,7 @@ use gpui_component::{
     Sizable,
     v_flex, h_flex,
 };
-use crate::models::Circuit;
+use crate::{models::Circuit, utils::defaults::render_settings};
 use crate::utils::dimensions;
 
 // --- end of imports ---
@@ -16,7 +16,12 @@ pub struct CircuitSettingsView {
     circuit: Entity<Circuit>,
 
     // Other Entities
-    number_input1: Entity<InputState>,
+    num_qubits_input: Entity<InputState>,
+    gate_size_input: Entity<InputState>,
+    line_thickness_input: Entity<InputState>,
+    corner_radius_input: Entity<InputState>,
+    row_gap_input: Entity<InputState>,
+    column_gap_input: Entity<InputState>,
 
     // Private fields
     checked: Vec<bool>,
@@ -31,20 +36,67 @@ impl CircuitSettingsView {
             cx.notify()
         }).detach();
 
-        let number_input1 = cx.new(|cx| {
+        let render_settings = circuit.read(cx).render_settings;
+
+        let num_qubits_input = cx.new(|cx| {
             InputState::new(window, cx)
-                .placeholder("Normal Integer")
+                .placeholder("Integer")
                 .default_value(circuit.read(cx).rows.to_string())
         });
 
+        let gate_size_input = cx.new(|cx| {
+            InputState::new(window, cx)
+                .placeholder("Float")
+                .default_value(render_settings.gate_size.to_string())
+        });
+
+        let line_thickness_input = cx.new(|cx| {
+            InputState::new(window, cx)
+                .placeholder("Integer")
+                .default_value(render_settings.line_thickness.to_string())
+        });
+
+        let corner_radius_input = cx.new(|cx| {
+            InputState::new(window, cx)
+                .placeholder("Integer")
+                .default_value(render_settings.corner_radius.to_string())
+        });
+
+        let row_gap_input = cx.new(|cx| {
+            InputState::new(window, cx)
+                .placeholder("Integer")
+                .default_value(render_settings.row_gap.to_string())
+        });
+
+        let column_gap_input = cx.new(|cx| {
+            InputState::new(window, cx)
+                .placeholder("Integer")
+                .default_value(render_settings.column_gap.to_string())
+        });
+
         let _subscriptions = vec![
-            cx.subscribe_in(&number_input1, window, Self::on_input_event),
-            cx.subscribe_in(&number_input1, window, Self::on_number_input_event),
+            cx.subscribe_in(&num_qubits_input, window, Self::on_input_event),
+            cx.subscribe_in(&num_qubits_input, window, Self::on_number_input_event),
+            cx.subscribe_in(&gate_size_input, window, Self::on_input_event),
+            cx.subscribe_in(&gate_size_input, window, Self::on_number_input_event),
+            cx.subscribe_in(&line_thickness_input, window, Self::on_input_event),
+            cx.subscribe_in(&line_thickness_input, window, Self::on_number_input_event),
+            cx.subscribe_in(&corner_radius_input, window, Self::on_input_event),
+            cx.subscribe_in(&corner_radius_input, window, Self::on_number_input_event),
+            cx.subscribe_in(&row_gap_input, window, Self::on_input_event),
+            cx.subscribe_in(&row_gap_input, window, Self::on_number_input_event),
+            cx.subscribe_in(&column_gap_input, window, Self::on_input_event),
+            cx.subscribe_in(&column_gap_input, window, Self::on_number_input_event),
         ];
         
         Self {
             circuit: circuit,
-            number_input1: number_input1,
+            num_qubits_input: num_qubits_input,
+            gate_size_input: gate_size_input,
+            line_thickness_input: line_thickness_input,
+            corner_radius_input: corner_radius_input,
+            row_gap_input: row_gap_input,
+            column_gap_input: column_gap_input,
             checked: vec![false; 10],
             _subscriptions: _subscriptions,
         }
@@ -108,7 +160,7 @@ impl CircuitSettingsView {
 
 impl Focusable for CircuitSettingsView {
     fn focus_handle(&self, cx: &gpui::App) -> gpui::FocusHandle {
-        self.number_input1.focus_handle(cx)
+        self.num_qubits_input.focus_handle(cx)
     }
 }
 
@@ -122,25 +174,91 @@ impl Render for CircuitSettingsView {
             .gap_2()
             .size_full()
             .items_center()
-            .child("This is the Circuit Settings View!")
+            // .child("This is the Circuit Settings View!")
+            // .child(
+            //     Button::new("ok")
+            //         .label("Let's Go!")
+            //         .on_click(|_, _, _| println!("Clicked!")),
+            // )
+            // .child(
+            //     ToggleGroup::new("toggle-button-group-segmented-outline")
+            //         .small()
+            //         .outline()
+            //         .children((0..10).map(|row| {
+            //             Toggle::new(row).label(format!("{}", row)).checked(self.checked[row])
+            //         }))
+            // )
             .child(
-                Button::new("ok")
-                    .label("Let's Go!")
-                    .on_click(|_, _, _| println!("Clicked!")),
-            )
-            .child(
-                ToggleGroup::new("toggle-button-group-segmented-outline")
-                    .small()
-                    .outline()
-                    .children((0..10).map(|row| {
-                        Toggle::new(row).label(format!("{}", row)).checked(self.checked[row])
-                    }))
+                h_flex()
+                    .w_full()
+                    .justify_start()
+                    .child("Number of qubits")
             )
             .child(
                 h_flex()
                     .justify_center()
                     .min_w(dimensions::NUMBER_INPUT_WIDTH)
-                    .child(NumberInput::new(&self.number_input1))
+                    .child(NumberInput::new(&self.num_qubits_input).small())
+            )
+            .child(
+                h_flex()
+                    .w_full()
+                    .justify_start()
+                    .child("Gate Size")
+            )
+            .child(
+                h_flex()
+                    .justify_center()
+                    .min_w(dimensions::NUMBER_INPUT_WIDTH)
+                    .child(NumberInput::new(&self.gate_size_input).small())
+            )
+            .child(
+                h_flex()
+                    .w_full()
+                    .justify_start()
+                    .child("Line thickness")
+            )
+            .child(
+                h_flex()
+                    .justify_center()
+                    .min_w(dimensions::NUMBER_INPUT_WIDTH)
+                    .child(NumberInput::new(&self.line_thickness_input).small())
+            )
+            .child(
+                h_flex()
+                    .w_full()
+                    .justify_start()
+                    .child("Corner radius")
+            )
+            .child(
+                h_flex()
+                    .justify_center()
+                    .min_w(dimensions::NUMBER_INPUT_WIDTH)
+                    .child(NumberInput::new(&self.corner_radius_input).small())
+            )
+            .child(
+                h_flex()
+                    .w_full()
+                    .justify_start()
+                    .child("Row gap")
+            )
+            .child(
+                h_flex()
+                    .justify_center()
+                    .min_w(dimensions::NUMBER_INPUT_WIDTH)
+                    .child(NumberInput::new(&self.row_gap_input).small())
+            )
+            .child(
+                h_flex()
+                    .w_full()
+                    .justify_start()
+                    .child("Column gap")
+            )
+            .child(
+                h_flex()
+                    .justify_center()
+                    .min_w(dimensions::NUMBER_INPUT_WIDTH)
+                    .child(NumberInput::new(&self.column_gap_input).small())
             )
     }
 }
