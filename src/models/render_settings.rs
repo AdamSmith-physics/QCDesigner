@@ -4,20 +4,23 @@ use crate::utils::defaults::render_settings as defaults;
 
 
 /// Settings for circuit-level rendering. 
+#[derive(Clone,Copy)]
 pub struct RenderSettings {
-    gate_size: f32,
-    line_thickness: f32,
-    row_padding: f32,
-    column_padding: f32,
+    pub gate_size: f32,
+    pub line_thickness: f32,
+    pub corner_radius: f32,
+    pub row_gap: f32,
+    pub column_gap: f32,
 }
 
 impl RenderSettings {
-    pub fn new(gate_size: f32, line_thickness: f32, row_padding: f32, column_padding: f32) -> Self {
+    pub fn new(gate_size: f32, line_thickness: f32, corner_radius:f32, row_gap: f32, column_gap: f32) -> Self {
         Self {
             gate_size: gate_size,
             line_thickness: line_thickness,
-            row_padding: row_padding,
-            column_padding: column_padding,
+            corner_radius: corner_radius,
+            row_gap: row_gap,
+            column_gap: column_gap,
         }
     }
 }
@@ -27,8 +30,9 @@ impl Default for RenderSettings {
         Self::new(
             defaults::GATE_SIZE,
             defaults::LINE_THICKNESS,
-            defaults::ROW_PADDING,
-            defaults::COLUMN_PADDING,
+            defaults::CORNER_RADIUS,
+            defaults::ROW_GAP,
+            defaults::COLUMN_GAP,
         )
     }
 }

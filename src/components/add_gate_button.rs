@@ -1,5 +1,6 @@
 use gpui::*;
 
+use crate::models::RenderSettings;
 use crate::utils::constants::add_gate_button as constants;
 
 // --- add_gate_button ---
@@ -12,7 +13,7 @@ use crate::utils::constants::add_gate_button as constants;
 //    1. Outer div   — white background + grey border; fades in on hover.
 //    2. Cross canvas — centred "+"; invisible at idle, revealed on hover.
 pub fn add_gate_button(
-    button_size: f32,
+    render_settings: RenderSettings,
     on_click:    impl Fn(&MouseUpEvent, &mut Window, &mut App) + 'static,
 ) -> AnyElement {
     let cross_canvas = canvas(
@@ -32,8 +33,10 @@ pub fn add_gate_button(
     div()
         .group("gate-button")
         .relative()
-        .w(px(button_size)).h(px(button_size))
-        .rounded(px(4.0)).border(px(1.0))
+        .min_w(px(render_settings.gate_size))
+        .h(px(render_settings.gate_size))
+        .rounded(px(render_settings.corner_radius))
+        .border(px(render_settings.line_thickness))
         .border_color(constants::BUTTON_FG)
         .bg(constants::BUTTON_BG)
         .opacity(constants::OPACITY_IDLE)
