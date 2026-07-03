@@ -12,24 +12,39 @@ use gpui_component::{
 };
 use crate::views::{ CircuitSettingsView, GateSelectorView, GateSettingsView, CircuitView };
 use crate::utils::{ constants, dimensions };
-use crate::models::AppSettings;
+use crate::models::{ AppSettings, Circuit };
+
+// --- end of imports ---
 
 pub struct RootView {
+    // Views
     circuit_view: Entity<CircuitView>,
     gate_selector_view: Entity<GateSelectorView>,
     circuit_settings_view: Entity<CircuitSettingsView>,
     gate_settings_view: Entity<GateSettingsView>,
-    
+
+    // Private fields
     active_tab_ix: usize,
 }
 
 impl RootView {
     
     pub fn new(window: &mut Window, cx: &mut App) -> Self {
-        let circuit_view = CircuitView::new(window, cx);
-        let gate_selector_view = GateSelectorView::new(window, cx);
-        let circuit_settings_view = CircuitSettingsView::new(window, cx);
-        let gate_settings_view = GateSettingsView::new(window, cx);
+
+        let circuit = cx.new(|_| Circuit::default());
+        
+        let circuit_view = cx.new(|cx| {
+            CircuitView::new(circuit.clone(), window, cx)
+        });
+        let gate_selector_view = cx.new(|cx| {
+            GateSelectorView::new(circuit.clone(), window, cx)
+        });
+        let circuit_settings_view = cx.new(|cx| {
+            CircuitSettingsView::new(circuit.clone(), window, cx)
+        });
+        let gate_settings_view = cx.new(|cx| {
+            GateSettingsView::new(circuit.clone(), window, cx)
+        });
 
         Self { 
             circuit_view: circuit_view,

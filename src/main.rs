@@ -1,17 +1,23 @@
+// Declare crate modules
 mod views;
 mod assets;
 mod models;
 mod app;
 mod utils;
+mod components;
 
+// Global imports
 use gpui::*;
 use gpui_component::{
     Root, Theme, ThemeMode, TitleBar,
 };
 
+// Local imports
 use views::RootView;
 use assets::CompositeAssets;
 use models::AppSettings;
+
+// --- End of imports ---
 
 
 fn main() {

@@ -3,7 +3,7 @@ use gpui::{Pixels, px};
 // NOTE: gap_1 corresponds to 4px. 
 
 pub const PADDING: Pixels = px(8.0);
-
+pub const NUMBER_INPUT_WIDTH: Pixels = px(150.0);
 
 pub mod root_view {
     use super::*;
