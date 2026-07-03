@@ -23,6 +23,11 @@ impl RenderSettings {
             column_gap: column_gap,
         }
     }
+
+    pub fn set_gate_size(&mut self, value: f32) {
+        self.gate_size = value;
+    }
+    
 }
 
 impl Default for RenderSettings {

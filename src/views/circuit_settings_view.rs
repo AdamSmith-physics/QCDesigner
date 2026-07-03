@@ -115,11 +115,27 @@ impl CircuitSettingsView {
         match event {
             InputEvent::Change => {
                 let text = state.read(cx).value();
-                if let Ok(value) = text.parse::<i64>() {
-                    self.circuit.update(cx, |circuit, cx| {
-                        circuit.set_rows(value);
-                        cx.notify();
-                    });
+                if let (Ok(value_int), Ok(value_float)) = (text.parse::<i64>(), text.parse::<f32>()) {
+                    if state == &self.num_qubits_input {
+                        self.circuit.update(cx, |circuit, cx| {
+                            circuit.set_rows(value_int);
+                            cx.notify();
+                        });
+                    } else if state == &self.gate_size_input {
+                        self.circuit.update(cx, |circuit, cx| {
+                            circuit.render_settings.set_gate_size(value_float);
+                            cx.notify();
+                        });
+                    } else if state == &self.line_thickness_input {
+                        
+                    } else if state == &self.corner_radius_input {
+                        
+                    } else if state == &self.row_gap_input {
+                        
+                    } else if state == &self.column_gap_input {
+                        
+                    }
+                    
                 }
                 println!("Change: {}", text);
             }
@@ -174,20 +190,6 @@ impl Render for CircuitSettingsView {
             .gap_2()
             .size_full()
             .items_center()
-            // .child("This is the Circuit Settings View!")
-            // .child(
-            //     Button::new("ok")
-            //         .label("Let's Go!")
-            //         .on_click(|_, _, _| println!("Clicked!")),
-            // )
-            // .child(
-            //     ToggleGroup::new("toggle-button-group-segmented-outline")
-            //         .small()
-            //         .outline()
-            //         .children((0..10).map(|row| {
-            //             Toggle::new(row).label(format!("{}", row)).checked(self.checked[row])
-            //         }))
-            // )
             .child(
                 h_flex()
                     .w_full()
