@@ -7,8 +7,9 @@ use crate::models::Circuit;
 
 use crate::utils::constants;
 
+/// Displays information about the most recently selected gate.
 pub struct GateSelectorView {
-    // Models
+     // Models
     circuit: Entity<Circuit>,
 }
 

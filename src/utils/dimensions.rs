@@ -1,9 +1,11 @@
 use gpui::{Pixels, px};
 
-// NOTE: gap_1 corresponds to 4px. 
+// --- Global dimensions ---
 
 pub const PADDING: Pixels = px(8.0);
 pub const NUMBER_INPUT_WIDTH: Pixels = px(150.0);
+
+// --- RootView panel sizes ---
 
 pub mod root_view {
     use super::*;

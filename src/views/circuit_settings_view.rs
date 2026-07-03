@@ -10,9 +10,7 @@ use crate::utils::dimensions;
 
 // --- end of imports ---
 
-
-/// --- CircuitSettingsView ---
-/// View for editing the global settings for the circuit. 
+/// View for editing global circuit properties (row count, etc.).
 pub struct CircuitSettingsView {
     // Models
     circuit: Entity<Circuit>,
@@ -23,8 +21,8 @@ pub struct CircuitSettingsView {
     // Private fields
     checked: Vec<bool>,
 
-    // Subscriptions
-    _subscriptions: Vec<Subscription>,
+     // Subscriptions
+     _subscriptions: Vec<Subscription>,
 }
 
 impl CircuitSettingsView {
@@ -52,7 +50,9 @@ impl CircuitSettingsView {
         }
     }
 
-    // For inputs in settings
+     // --- Input handlers ---
+
+    /// Reacts to text changes and Enter key in the row-count input.
     fn on_input_event(
         &mut self,
         state: &Entity<InputState>,
@@ -79,7 +79,7 @@ impl CircuitSettingsView {
         }
     }
 
-    // For registering the steppers in the NumberInput
+    /// Handles increment/decrement from the NumberInput step buttons.
     fn on_number_input_event(
         &mut self,
         this: &Entity<InputState>,
@@ -104,14 +104,16 @@ impl CircuitSettingsView {
     }  
 }
 
-// Implement focussable for inputs
+// --- Focusable ---
+
 impl Focusable for CircuitSettingsView {
     fn focus_handle(&self, cx: &gpui::App) -> gpui::FocusHandle {
         self.number_input1.focus_handle(cx)
     }
 }
 
-// Render the view
+// --- Render ---
+
 impl Render for CircuitSettingsView {
     fn render(&mut self, _: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
         

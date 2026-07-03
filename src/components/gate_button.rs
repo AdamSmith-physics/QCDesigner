@@ -2,9 +2,9 @@ use gpui::*;
 
 use crate::utils::constants::gate_button as constants;
 
-// ── gate_button ───────────────────────────────────────────────────────────────
+// --- gate_button ---
 //
-// Stateless builder for a selected button. It will display a number which 
+// Stateless builder for a selected button. It will display a number which
 // shows the order in which it was selected. The caller supplies the click
 // handler (built with `cx.listener(...)` at the call site), keeping this
 // function free of any view-type dependency.

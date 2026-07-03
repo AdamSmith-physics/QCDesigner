@@ -5,15 +5,13 @@ use crate::components::{ ScrollCenter, MeasuredElement, add_gate_button, gate_bu
 // --- end of imports ---
 
 
-// Temporary constants
+// --- Layout constants ---
+
 const BUTTON_SIZE: f32 = 30.0;
 const LINE_THICKNESS: f32 = 1.0;
 const ROW_GAP: f32 = 8.0;
 
-
-
-/// --- CircuitView ---
-/// View for showing the circuit. Wraps the circuit in ScrollCenter
+/// Renders the circuit grid with gate buttons and background wires.
 pub struct CircuitView {
     // Models
     circuit: Entity<Circuit>,
@@ -43,7 +41,7 @@ impl CircuitView {
 impl Render for CircuitView {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
 
-        // ── Content-width measurement callback ────────────────────────────────
+        // --- Content-width measurement callback ---
         let weak = cx.weak_entity();
         let on_width_cb = move |width: Pixels, window: &mut Window, cx: &mut App| {
             window.defer(cx, move |_window, cx| {
@@ -111,7 +109,7 @@ impl Render for CircuitView {
         }
 
 
-        // ── Background wire canvas ---
+        // --- Background wire canvas ---
         let wire_canvas = canvas(
             |_bounds, _window, _cx| {},
             move |bounds, _state, window, _cx| {
@@ -140,7 +138,7 @@ impl Render for CircuitView {
     
         let measured_content = MeasuredElement::new(content).on_width(on_width_cb);
     
-        // ── Root element ---
+        // --- Root element ---
         div().flex_1().min_w(px(0.0)).flex().flex_col()
             .child( 
                 ScrollCenter::new(self.scroll_handle.clone(), measured_content)

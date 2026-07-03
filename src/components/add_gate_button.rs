@@ -2,15 +2,15 @@ use gpui::*;
 
 use crate::utils::constants::add_gate_button as constants;
 
-// ── add_gate_button ───────────────────────────────────────────────────────────────
+// --- add_gate_button ---
 //
 // Stateless builder for an empty cell button.  The caller supplies the click
 // handler (built with `cx.listener(...)` at the call site), keeping this
 // function free of any view-type dependency.
 //
 // Visual layers:
-//   1. Outer div  — white background + grey border; fades in on hover.
-//   2. Cross canvas — centred "+"; invisible at idle, revealed on hover.
+//    1. Outer div   — white background + grey border; fades in on hover.
+//    2. Cross canvas — centred "+"; invisible at idle, revealed on hover.
 pub fn add_gate_button(
     button_size: f32,
     on_click:    impl Fn(&MouseUpEvent, &mut Window, &mut App) + 'static,
@@ -44,7 +44,7 @@ pub fn add_gate_button(
         .into_any_element()
 }
 
-// ── draw_cross ────────────────────────────────────────────────────────────────
+// --- draw_cross ---
 
 fn draw_cross(bounds: Bounds<Pixels>, window: &mut Window) {
     let arm_half   = bounds.size.width * (constants::CROSS_ARM_FRAC       * 0.5);

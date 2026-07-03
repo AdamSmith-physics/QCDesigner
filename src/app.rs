@@ -1,6 +1,6 @@
 use gpui::*;
 
-// ── Actions ─────────────────────────────────────────────────────────────
+// --- Actions ---
 
 actions!(gpui_menu, [SaveFile, Quit]);
 actions!(app, [ExitFullscreen]);
@@ -10,7 +10,7 @@ pub fn init(cx: &mut App) {
     cx.on_action(quit);
     cx.on_action(exit_fullscreen);
 
-    // ── Menu bar setup ──────────────────────────────────────────────────────
+     // Menu bar setup
     cx.set_menus(vec![
         Menu {
             name: "gpui-menu".into(),
@@ -26,13 +26,13 @@ pub fn init(cx: &mut App) {
         },
     ]);
 
-    // ── Key bindings ────────────────────────────────────────────────────────
+     // Key bindings
     cx.bind_keys([
         KeyBinding::new("Escape", ExitFullscreen, None),
     ]);
 }
 
-// ── Handlers ────────────────────────────────────────────────────────────────
+// --- Handlers ---
 
 fn quit(_: &Quit, cx: &mut App) {
     cx.quit();
