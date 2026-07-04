@@ -24,8 +24,25 @@ impl RenderSettings {
         }
     }
 
+    
+    // --- Gate size management ---
+    
     pub fn set_gate_size(&mut self, value: f32) {
         self.gate_size = value;
+    }
+
+    pub fn increase_gate_size(&mut self) {
+        const GATE_SIZE_MAX: f32 = 60.0;
+        if self.gate_size + 0.5 < GATE_SIZE_MAX {
+            self.gate_size = self.gate_size + 0.5;
+        }
+    }
+
+    pub fn decrease_gate_size(&mut self) {
+        const GATE_SIZE_MIN: f32 = 10.0;
+        if self.gate_size - 0.5 > GATE_SIZE_MIN {
+            self.gate_size = self.gate_size - 0.5;
+        }
     }
     
 }

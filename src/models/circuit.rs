@@ -76,19 +76,21 @@ impl Circuit {
 
     pub fn set_rows(&mut self, num_rows: i64) {
         self.rows = num_rows as usize;
-     }
-
-    pub fn decrease_rows(&mut self) {
-        if self.rows > 1 {
-            self.rows = self.rows - 1;
-         }
-     }
+    }
 
     pub fn increase_rows(&mut self) {
         if self.rows < 10 {
             self.rows = self.rows + 1;
-         }
-     }
+        }
+    }
+      
+    pub fn decrease_rows(&mut self) {
+        if self.rows > 1 {
+            self.rows = self.rows - 1;
+        }
+    }
+
+    
     
 }
 
