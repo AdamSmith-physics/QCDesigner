@@ -5,15 +5,7 @@ use crate::components::{ ScrollCenter, MeasuredElement, add_gate_button, gate_bu
 // --- end of imports ---
 
 
-// Temporary constants
-const BUTTON_SIZE: f32 = 30.0;
-const LINE_THICKNESS: f32 = 1.0;
-const ROW_GAP: f32 = 8.0;
-
-
-
-/// --- CircuitView ---
-/// View for showing the circuit. Wraps the circuit in ScrollCenter
+/// Renders the circuit grid with gate buttons and background wires.
 pub struct CircuitView {
     // Models
     circuit: Entity<Circuit>,
@@ -43,7 +35,7 @@ impl CircuitView {
 impl Render for CircuitView {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
 
-        // ── Content-width measurement callback ────────────────────────────────
+        // --- Content-width measurement callback ---
         let weak = cx.weak_entity();
         let on_width_cb = move |width: Pixels, window: &mut Window, cx: &mut App| {
             window.defer(cx, move |_window, cx| {
@@ -60,6 +52,7 @@ impl Render for CircuitView {
        
         
         let circuit = self.circuit.read(cx);
+        let render_settings = circuit.render_settings;
         let num_rows = circuit.rows;
         let num_cols = circuit.cols;
         
@@ -76,7 +69,7 @@ impl Render for CircuitView {
                     // Add button for adding gates
                     false => {
                         col_elems.push(add_gate_button(
-                            BUTTON_SIZE,
+                            render_settings,
                             cx.listener(move |this: &mut CircuitView, _, _, cx| {
                                 this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
                                     circ.add_gate(coord);
@@ -90,7 +83,7 @@ impl Render for CircuitView {
                     // Add button with number selected.
                     true => {
                         col_elems.push(gate_button(
-                            BUTTON_SIZE,
+                            render_settings,
                             circuit.get_gate_number(&coord),
                             cx.listener(move |this: &mut CircuitView, _, _, cx| {
                                 this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
@@ -106,22 +99,22 @@ impl Render for CircuitView {
             }
         
             col_divs.push(
-                div().flex().flex_col().gap(px(ROW_GAP)).children(col_elems).into_any_element(),
+                div().flex().flex_col().gap(px(render_settings.row_gap)).children(col_elems).into_any_element(),
             );
         }
 
 
-        // ── Background wire canvas ---
+        // --- Background wire canvas ---
         let wire_canvas = canvas(
             |_bounds, _window, _cx| {},
             move |bounds, _state, window, _cx| {
                 for row in 0..num_rows {
                     let y = bounds.origin.y
-                        + px(row as f32 * (BUTTON_SIZE + ROW_GAP) + BUTTON_SIZE / 2.0);
+                        + px(row as f32 * (render_settings.gate_size + render_settings.row_gap) + render_settings.gate_size / 2.0);
                     window.paint_quad(fill(
                         Bounds {
-                            origin: point(bounds.origin.x, y - px(LINE_THICKNESS / 2.0)),
-                            size:   size(bounds.size.width, px(LINE_THICKNESS)),
+                            origin: point(bounds.origin.x, y - px(render_settings.line_thickness / 2.0)),
+                            size:   size(bounds.size.width, px(render_settings.line_thickness)),
                         },
                         black(),
                     ));
@@ -133,18 +126,18 @@ impl Render for CircuitView {
 
         let content = div()
             .flex().flex_row().items_start()
-            .px(px(ROW_GAP)) // Controls how much the wires stick out!
+            .px(px(render_settings.column_gap)) // Controls how much the wires stick out!
             .child(wire_canvas)
-            .gap(px(ROW_GAP))
+            .gap(px(render_settings.column_gap))
             .children(col_divs);
     
         let measured_content = MeasuredElement::new(content).on_width(on_width_cb);
     
-        // ── Root element ---
+        // --- Root element ---
         div().flex_1().min_w(px(0.0)).flex().flex_col()
             .child( 
                 ScrollCenter::new(self.scroll_handle.clone(), measured_content)
-                    .p(px(8.0))
+                    .p(px(render_settings.column_gap))
                     .min_content_width(self.content_width),
             )
     }

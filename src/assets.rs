@@ -11,7 +11,7 @@ use std::borrow::Cow;
 #[include = "assets/**/*.svg"]
 struct LocalAssets;
 
-// ── CompositeAssets ───────────────────────────────────────────────────────────
+// --- CompositeAssets ---
 //
 // Checks gpui-component-assets first (built-in icons), then falls back to
 // LocalAssets (your custom SVGs).  Pass this to Application::with_assets().

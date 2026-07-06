@@ -14,7 +14,6 @@ pub mod root_view {
 
 pub mod gate_selector {
     pub const PANEL_TITLE: &str = "Gate Selector";
-    
 }
 
 

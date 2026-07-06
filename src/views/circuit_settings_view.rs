@@ -1,30 +1,27 @@
 use gpui::*;
 use gpui_component::{
-    button::{Button, Toggle, ToggleGroup, ToggleVariants},
-    input::{InputEvent, InputState, NumberInput, NumberInputEvent, StepAction},
-    Sizable,
-    v_flex, h_flex,
+    Sizable, divider::Divider, h_flex, input::{InputEvent, InputState, NumberInput, NumberInputEvent, StepAction}, v_flex,
 };
-use crate::models::Circuit;
+use crate::{models::Circuit};
 use crate::utils::dimensions;
 
 // --- end of imports ---
 
-
-/// --- CircuitSettingsView ---
-/// View for editing the global settings for the circuit. 
+/// View for editing global circuit properties (row count, etc.).
 pub struct CircuitSettingsView {
     // Models
     circuit: Entity<Circuit>,
 
-    // Other Entities
-    number_input1: Entity<InputState>,
+    // Input Entities
+    num_qubits_input: Entity<InputState>,
+    gate_size_input: Entity<InputState>,
+    line_thickness_input: Entity<InputState>,
+    corner_radius_input: Entity<InputState>,
+    row_gap_input: Entity<InputState>,
+    column_gap_input: Entity<InputState>,
 
-    // Private fields
-    checked: Vec<bool>,
-
-    // Subscriptions
-    _subscriptions: Vec<Subscription>,
+     // Subscriptions
+     _subscriptions: Vec<Subscription>,
 }
 
 impl CircuitSettingsView {
@@ -33,45 +30,143 @@ impl CircuitSettingsView {
             cx.notify()
         }).detach();
 
-        let number_input1 = cx.new(|cx| {
+        let render_settings = circuit.read(cx).render_settings;
+
+        let num_qubits_input = cx.new(|cx| {
             InputState::new(window, cx)
-                .placeholder("Normal Integer")
+                .placeholder("Integer")
                 .default_value(circuit.read(cx).rows.to_string())
         });
 
+        let gate_size_input = cx.new(|cx| {
+            InputState::new(window, cx)
+                .placeholder("Float")
+                .default_value(render_settings.gate_size.to_string())
+        });
+
+        let line_thickness_input = cx.new(|cx| {
+            InputState::new(window, cx)
+                .placeholder("Float")
+                .default_value(render_settings.line_thickness.to_string())
+        });
+
+        let corner_radius_input = cx.new(|cx| {
+            InputState::new(window, cx)
+                .placeholder("Float")
+                .default_value(render_settings.corner_radius.to_string())
+        });
+
+        let row_gap_input = cx.new(|cx| {
+            InputState::new(window, cx)
+                .placeholder("Float")
+                .default_value(render_settings.row_gap.to_string())
+        });
+
+        let column_gap_input = cx.new(|cx| {
+            InputState::new(window, cx)
+                .placeholder("Float")
+                .default_value(render_settings.column_gap.to_string())
+        });
+
         let _subscriptions = vec![
-            cx.subscribe_in(&number_input1, window, Self::on_input_event),
-            cx.subscribe_in(&number_input1, window, Self::on_number_input_event),
+            cx.subscribe_in(&num_qubits_input, window, Self::on_input_event),
+            cx.subscribe_in(&num_qubits_input, window, Self::on_number_input_event),
+            cx.subscribe_in(&gate_size_input, window, Self::on_input_event),
+            cx.subscribe_in(&gate_size_input, window, Self::on_number_input_event),
+            cx.subscribe_in(&line_thickness_input, window, Self::on_input_event),
+            cx.subscribe_in(&line_thickness_input, window, Self::on_number_input_event),
+            cx.subscribe_in(&corner_radius_input, window, Self::on_input_event),
+            cx.subscribe_in(&corner_radius_input, window, Self::on_number_input_event),
+            cx.subscribe_in(&row_gap_input, window, Self::on_input_event),
+            cx.subscribe_in(&row_gap_input, window, Self::on_number_input_event),
+            cx.subscribe_in(&column_gap_input, window, Self::on_input_event),
+            cx.subscribe_in(&column_gap_input, window, Self::on_number_input_event),
         ];
         
         Self {
             circuit: circuit,
-            number_input1: number_input1,
-            checked: vec![false; 10],
+            num_qubits_input: num_qubits_input,
+            gate_size_input: gate_size_input,
+            line_thickness_input: line_thickness_input,
+            corner_radius_input: corner_radius_input,
+            row_gap_input: row_gap_input,
+            column_gap_input: column_gap_input,
             _subscriptions: _subscriptions,
         }
     }
 
-    // For inputs in settings
+    // --- Input handlers ---
+    // 
+    fn update_strings(&mut self, state: &Entity<InputState>, window: &mut Window, cx: &mut Context<Self>){
+        state.update(cx, |input, cx| {
+            if state == &self.num_qubits_input {
+                input.set_value(self.circuit.read(cx).rows.to_string(), window, cx);
+            } else if state == &self.gate_size_input {
+                input.set_value(self.circuit.read(cx).render_settings.gate_size.to_string(), window, cx);
+            } else if state == &self.line_thickness_input {
+                input.set_value(self.circuit.read(cx).render_settings.line_thickness.to_string(), window, cx);
+            } else if state == &self.corner_radius_input {
+                input.set_value(self.circuit.read(cx).render_settings.corner_radius.to_string(), window, cx);
+            } else if state == &self.row_gap_input {
+                input.set_value(self.circuit.read(cx).render_settings.row_gap.to_string(), window, cx);
+            } else if state == &self.column_gap_input {
+                input.set_value(self.circuit.read(cx).render_settings.column_gap.to_string(), window, cx);
+            }
+        });
+    }
+
+    /// Reacts to text changes and Enter key in the row-count input.
     fn on_input_event(
         &mut self,
         state: &Entity<InputState>,
         event: &InputEvent,
-        _: &mut Window,
+        window: &mut Window,
         cx: &mut Context<Self>,
     ) {
         match event {
             InputEvent::Change => {
                 let text = state.read(cx).value();
-                if let Ok(value) = text.parse::<i64>() {
-                    self.circuit.update(cx, |circuit, cx| {
-                        circuit.set_rows(value);
-                        cx.notify();
-                    });
-                }
                 println!("Change: {}", text);
             }
             InputEvent::PressEnter { secondary } => {
+                let text = state.read(cx).value();
+                if let Ok(value_float) = text.parse::<f32>() {
+                    let value_int = value_float as i64;
+                    if state == &self.num_qubits_input {
+                        self.circuit.update(cx, |circuit, cx| {
+                            circuit.set_rows(value_int);
+                            cx.notify();
+                        });
+                    } else if state == &self.gate_size_input {
+                        self.circuit.update(cx, |circuit, cx| {
+                            println!("Gate Size: {value_float}");
+                            circuit.render_settings.set_gate_size(value_float);
+                            cx.notify();
+                        });
+                    } else if state == &self.line_thickness_input {
+                        self.circuit.update(cx, |circuit, cx| {
+                            circuit.render_settings.set_line_thickness(value_float);
+                            cx.notify();
+                        });
+                    } else if state == &self.corner_radius_input {
+                        self.circuit.update(cx, |circuit, cx| {
+                            circuit.render_settings.set_corner_radius(value_float);
+                            cx.notify();
+                        });
+                    } else if state == &self.row_gap_input {
+                        self.circuit.update(cx, |circuit, cx| {
+                            circuit.render_settings.set_row_gap(value_float);
+                            cx.notify();
+                        });
+                    } else if state == &self.column_gap_input {
+                        self.circuit.update(cx, |circuit, cx| {
+                            circuit.render_settings.set_column_gap(value_float);
+                            cx.notify();
+                        });
+                    }
+                    
+                }
+                self.update_strings(state, window, cx);
                 println!("PressEnter secondary: {}", secondary)
             }
             InputEvent::Focus => println!("Focus"),
@@ -79,10 +174,10 @@ impl CircuitSettingsView {
         }
     }
 
-    // For registering the steppers in the NumberInput
+    /// Handles increment/decrement from the NumberInput step buttons.
     fn on_number_input_event(
         &mut self,
-        this: &Entity<InputState>,
+        state: &Entity<InputState>,
         event: &NumberInputEvent,
         window: &mut Window,
         cx: &mut Context<Self>,
@@ -91,27 +186,55 @@ impl CircuitSettingsView {
             NumberInputEvent::Step(step_action) => {
                 self.circuit.update(cx, |circuit, cx| {
                     match step_action {
-                        StepAction::Decrement => circuit.decrease_rows(),
-                        StepAction::Increment => circuit.increase_rows(),
+                        StepAction::Decrement => {
+                            if state == &self.num_qubits_input {
+                                circuit.decrease_rows();
+                            } else if state == &self.gate_size_input {
+                                circuit.render_settings.decrease_gate_size();
+                            } else if state == &self.line_thickness_input {
+                                circuit.render_settings.decrease_line_thickness();
+                            } else if state == &self.corner_radius_input {
+                                circuit.render_settings.decrease_corner_radius();
+                            } else if state == &self.row_gap_input {
+                                circuit.render_settings.decrease_row_gap();
+                            } else if state == &self.column_gap_input {
+                                circuit.render_settings.decrease_column_gap();
+                            }
+                        }
+                        StepAction::Increment => {
+                            if state == &self.num_qubits_input {
+                                circuit.increase_rows();
+                            } else if state == &self.gate_size_input {
+                                circuit.render_settings.increase_gate_size();
+                            } else if state == &self.line_thickness_input {
+                                circuit.render_settings.increase_line_thickness();
+                            } else if state == &self.corner_radius_input {
+                                circuit.render_settings.increase_corner_radius();
+                            } else if state == &self.row_gap_input {
+                                circuit.render_settings.increase_row_gap();
+                            } else if state == &self.column_gap_input {
+                                circuit.render_settings.increase_column_gap();
+                            }
+                        },
                     }
                     cx.notify();
                 });
-                this.update(cx, |input, cx| {
-                    input.set_value(self.circuit.read(cx).rows.to_string(), window, cx);
-                });
+                self.update_strings(state, window, cx);
             }
         }
     }  
 }
 
-// Implement focussable for inputs
+// --- Focusable ---
+
 impl Focusable for CircuitSettingsView {
     fn focus_handle(&self, cx: &gpui::App) -> gpui::FocusHandle {
-        self.number_input1.focus_handle(cx)
+        self.num_qubits_input.focus_handle(cx)
     }
 }
 
-// Render the view
+// --- Render ---
+
 impl Render for CircuitSettingsView {
     fn render(&mut self, _: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
         
@@ -120,25 +243,82 @@ impl Render for CircuitSettingsView {
             .gap_2()
             .size_full()
             .items_center()
-            .child("This is the Circuit Settings View!")
             .child(
-                Button::new("ok")
-                    .label("Let's Go!")
-                    .on_click(|_, _, _| println!("Clicked!")),
-            )
-            .child(
-                ToggleGroup::new("toggle-button-group-segmented-outline")
-                    .small()
-                    .outline()
-                    .children((0..10).map(|row| {
-                        Toggle::new(row).label(format!("{}", row)).checked(self.checked[row])
-                    }))
+                h_flex()
+                    .w_full()
+                    .justify_start()
+                    .child("Number of qubits")
             )
             .child(
                 h_flex()
                     .justify_center()
                     .min_w(dimensions::NUMBER_INPUT_WIDTH)
-                    .child(NumberInput::new(&self.number_input1))
+                    .child(NumberInput::new(&self.num_qubits_input).small())
+            )
+            .child(Divider::horizontal().w_full().pt_2())
+            .child(
+                h_flex()
+                    .w_full()
+                    .justify_start()
+                    .child("Gate Size")
+            )
+            .child(
+                h_flex()
+                    .justify_center()
+                    .min_w(dimensions::NUMBER_INPUT_WIDTH)
+                    .child(NumberInput::new(&self.gate_size_input).small())
+            )
+            .child(Divider::horizontal().w_full().pt_2())
+            .child(
+                h_flex()
+                    .w_full()
+                    .justify_start()
+                    .child("Line thickness")
+            )
+            .child(
+                h_flex()
+                    .justify_center()
+                    .min_w(dimensions::NUMBER_INPUT_WIDTH)
+                    .child(NumberInput::new(&self.line_thickness_input).small())
+            )
+            .child(Divider::horizontal().w_full().pt_2())
+            .child(
+                h_flex()
+                    .w_full()
+                    .justify_start()
+                    .child("Corner radius")
+            )
+            .child(
+                h_flex()
+                    .justify_center()
+                    .min_w(dimensions::NUMBER_INPUT_WIDTH)
+                    .child(NumberInput::new(&self.corner_radius_input).small())
+            )
+            .child(Divider::horizontal().w_full().pt_2())
+            .child(
+                h_flex()
+                    .w_full()
+                    .justify_start()
+                    .child("Row gap")
+            )
+            .child(
+                h_flex()
+                    .justify_center()
+                    .min_w(dimensions::NUMBER_INPUT_WIDTH)
+                    .child(NumberInput::new(&self.row_gap_input).small())
+            )
+            .child(Divider::horizontal().w_full().pt_2())
+            .child(
+                h_flex()
+                    .w_full()
+                    .justify_start()
+                    .child("Column gap")
+            )
+            .child(
+                h_flex()
+                    .justify_center()
+                    .min_w(dimensions::NUMBER_INPUT_WIDTH)
+                    .child(NumberInput::new(&self.column_gap_input).small())
             )
     }
 }

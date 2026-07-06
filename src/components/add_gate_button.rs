@@ -1,18 +1,19 @@
 use gpui::*;
 
+use crate::models::RenderSettings;
 use crate::utils::constants::add_gate_button as constants;
 
-// ── add_gate_button ───────────────────────────────────────────────────────────────
+// --- add_gate_button ---
 //
 // Stateless builder for an empty cell button.  The caller supplies the click
 // handler (built with `cx.listener(...)` at the call site), keeping this
 // function free of any view-type dependency.
 //
 // Visual layers:
-//   1. Outer div  — white background + grey border; fades in on hover.
-//   2. Cross canvas — centred "+"; invisible at idle, revealed on hover.
+//    1. Outer div   — white background + grey border; fades in on hover.
+//    2. Cross canvas — centred "+"; invisible at idle, revealed on hover.
 pub fn add_gate_button(
-    button_size: f32,
+    render_settings: RenderSettings,
     on_click:    impl Fn(&MouseUpEvent, &mut Window, &mut App) + 'static,
 ) -> AnyElement {
     let cross_canvas = canvas(
@@ -32,8 +33,10 @@ pub fn add_gate_button(
     div()
         .group("gate-button")
         .relative()
-        .w(px(button_size)).h(px(button_size))
-        .rounded(px(4.0)).border(px(1.0))
+        .min_w(px(render_settings.gate_size))
+        .h(px(render_settings.gate_size))
+        .rounded(px(render_settings.corner_radius))
+        .border(px(render_settings.line_thickness))
         .border_color(constants::BUTTON_FG)
         .bg(constants::BUTTON_BG)
         .opacity(constants::OPACITY_IDLE)
@@ -44,7 +47,7 @@ pub fn add_gate_button(
         .into_any_element()
 }
 
-// ── draw_cross ────────────────────────────────────────────────────────────────
+// --- draw_cross ---
 
 fn draw_cross(bounds: Bounds<Pixels>, window: &mut Window) {
     let arm_half   = bounds.size.width * (constants::CROSS_ARM_FRAC       * 0.5);

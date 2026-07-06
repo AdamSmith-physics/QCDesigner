@@ -63,16 +63,16 @@ impl ScrollCenter {
 
 impl RenderOnce for ScrollCenter {
     fn render(self, window: &mut Window, _cx: &mut App) -> impl IntoElement {
-        // ── First-frame measurement pass ──────────────────────────────────
-        // On the very first frame `min_content_width` is `None` because the
-        // content has not been measured yet.  We render the child off-screen
-        // (absolute, far outside the viewport) so:
-        //   • The element IS still in the GPUI render tree, so
-        //     MeasuredElement's prepaint fires and captures the correct width.
-        //   • Nothing is visible to the user, so there is no flash of
-        //     incorrectly-sized or un-centred content.
-        // The deferred cx.notify() then schedules a second frame which renders
-        // the content correctly from the start.
+         // --- First-frame measurement pass ---
+         // On the very first frame `min_content_width` is `None` because the
+         // content has not been measured yet.  We render the child off-screen
+         // (absolute, far outside the viewport) so:
+         // • The element IS still in the GPUI render tree, so
+         //   MeasuredElement's prepaint fires and captures the correct width.
+         // • Nothing is visible to the user, so there is no flash of
+         //   incorrectly-sized or un-centred content.
+         // The deferred cx.notify() then schedules a second frame which renders
+         // the content correctly from the start.
         if self.min_content_width.is_none() {
             return div()
                 .flex_1()
@@ -87,7 +87,7 @@ impl RenderOnce for ScrollCenter {
                 );
         }
 
-        // ── Normal rendering (content has been measured) ──────────────────
+         // --- Normal rendering (content has been measured) ---
         let scroll_handle = self.scroll_handle.clone();
         let line_height = window.line_height();
 

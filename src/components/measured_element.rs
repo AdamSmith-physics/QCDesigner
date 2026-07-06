@@ -1,17 +1,17 @@
 use gpui::*;
 
-// ── MeasuredElement ───────────────────────────────────────────────────────────
+// --- MeasuredElement ---
 //
 // A transparent wrapper around any element that fires a one-shot callback
 // during `prepaint` with the Taffy-resolved pixel width of the inner element.
 //
-//   • Delegates layout entirely to the inner element — same LayoutId, same
-//     bounds — so it has no visual effect of its own.
-//   • `inner` and `on_width` are stored as `Option` so they can be `.take()`n
-//     in the respective single-call phases (request_layout / prepaint).
-//   • The callback should call `window.defer()` + `cx.notify()` so the state
-//     update runs *after* the current draw phase, when GPUI will schedule a
-//     new frame.
+// • Delegates layout entirely to the inner element — same LayoutId, same
+//   bounds — so it has no visual effect of its own.
+// • `inner` and `on_width` are stored as `Option` so they can be `.take()`n
+//   in the respective single-call phases (request_layout / prepaint).
+// • The callback should call `window.defer()` + `cx.notify()` so the state
+//   update runs *after* the current draw phase, when GPUI will schedule a
+//   new frame.
 
 pub struct MeasuredElement {
     inner:    Option<AnyElement>,

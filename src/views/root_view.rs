@@ -16,6 +16,7 @@ use crate::models::{ AppSettings, Circuit };
 
 // --- end of imports ---
 
+/// Top-level view: titlebar, main circuit canvas, gate selector, and settings panels.
 pub struct RootView {
     // Views
     circuit_view: Entity<CircuitView>,
@@ -30,7 +31,6 @@ pub struct RootView {
 impl RootView {
     
     pub fn new(window: &mut Window, cx: &mut App) -> Self {
-
         let circuit = cx.new(|_| Circuit::default());
         
         let circuit_view = cx.new(|cx| {
@@ -55,10 +55,13 @@ impl RootView {
         }
     }
     
+    /// Switch the bottom panel between gate and circuit settings.
     fn set_active_tab(&mut self, ix: usize, _: &mut Window, cx: &mut Context<Self>) {
         self.active_tab_ix = ix;
         cx.notify();
     }
+
+     // --- Titlebar ---
 
     fn render_titlebar() -> impl IntoElement {
         TitleBar::new()
@@ -78,9 +81,9 @@ impl RootView {
                             .label("toggle")
                             .with_variant(ButtonVariant::Ghost)
                             .on_click(|_, _, cx| {
-                                // This stops the double click to maximise on titlebar behind button
-                                cx.stop_propagation();
-                                let app_settings = cx.global_mut::<AppSettings>();
+                                  // Prevent titlebar double-click maximization behind button
+                                 cx.stop_propagation();
+                                 let app_settings = cx.global_mut::<AppSettings>();
                                 app_settings.toggle_theme();
                                 Theme::change(app_settings.theme, None, cx);
                             })
@@ -92,13 +95,14 @@ impl RootView {
                             .label(constants::titlebar::EXPORT_LABEL)
                             .with_variant(ButtonVariant::Ghost)
                             .on_click(|_, _, cx| {
-                                // This stops the double click to maximise on titlebar behind button
-                                cx.stop_propagation();
-                            })
-                    )
-            )
-    }
+                                  // Prevent titlebar double-click maximization behind button
+                                 cx.stop_propagation();
+                              })
+                      )
+              )
+     }
 
+     // --- Render ---
 }
 
 impl Render for RootView {
@@ -111,8 +115,8 @@ impl Render for RootView {
         let gate_settings_view = self.gate_settings_view.clone();
 
         let right_panel = match self.active_tab_ix {
-            0 => div().child(gate_settings_view),
-            _ => div().child(circuit_settings_view),
+            0 => div().w_full().child(gate_settings_view),
+            _ => div().w_full().child(circuit_settings_view),
         };
 
         div()
