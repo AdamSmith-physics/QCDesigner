@@ -1,9 +1,6 @@
 use gpui::*;
 use gpui_component::{
-    // button::{Button, Toggle, ToggleGroup, ToggleVariants},
-    input::{InputEvent, InputState, NumberInput, NumberInputEvent, StepAction},
-    Sizable,
-    v_flex, h_flex,
+    Sizable, divider::Divider, h_flex, input::{InputEvent, InputState, NumberInput, NumberInputEvent, StepAction}, v_flex,
 };
 use crate::{models::Circuit};
 use crate::utils::dimensions;
@@ -258,6 +255,7 @@ impl Render for CircuitSettingsView {
                     .min_w(dimensions::NUMBER_INPUT_WIDTH)
                     .child(NumberInput::new(&self.num_qubits_input).small())
             )
+            .child(Divider::horizontal().w_full().pt_2())
             .child(
                 h_flex()
                     .w_full()
@@ -270,6 +268,7 @@ impl Render for CircuitSettingsView {
                     .min_w(dimensions::NUMBER_INPUT_WIDTH)
                     .child(NumberInput::new(&self.gate_size_input).small())
             )
+            .child(Divider::horizontal().w_full().pt_2())
             .child(
                 h_flex()
                     .w_full()
@@ -282,6 +281,7 @@ impl Render for CircuitSettingsView {
                     .min_w(dimensions::NUMBER_INPUT_WIDTH)
                     .child(NumberInput::new(&self.line_thickness_input).small())
             )
+            .child(Divider::horizontal().w_full().pt_2())
             .child(
                 h_flex()
                     .w_full()
@@ -294,6 +294,7 @@ impl Render for CircuitSettingsView {
                     .min_w(dimensions::NUMBER_INPUT_WIDTH)
                     .child(NumberInput::new(&self.corner_radius_input).small())
             )
+            .child(Divider::horizontal().w_full().pt_2())
             .child(
                 h_flex()
                     .w_full()
@@ -306,6 +307,7 @@ impl Render for CircuitSettingsView {
                     .min_w(dimensions::NUMBER_INPUT_WIDTH)
                     .child(NumberInput::new(&self.row_gap_input).small())
             )
+            .child(Divider::horizontal().w_full().pt_2())
             .child(
                 h_flex()
                     .w_full()
