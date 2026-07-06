@@ -1,4 +1,5 @@
 use crate::utils::defaults::render_settings as defaults;
+use crate::utils::dimensions::render_settings as dimensions;
 
 // --- End of imports ---
 
@@ -28,20 +29,100 @@ impl RenderSettings {
     // --- Gate size management ---
     
     pub fn set_gate_size(&mut self, value: f32) {
-        self.gate_size = value;
+        if value <= dimensions::GATE_SIZE_MAX && value >= dimensions::GATE_SIZE_MIN {
+            self.gate_size = value;
+        }
     }
 
     pub fn increase_gate_size(&mut self) {
-        const GATE_SIZE_MAX: f32 = 60.0;
-        if self.gate_size + 0.5 < GATE_SIZE_MAX {
-            self.gate_size = self.gate_size + 0.5;
+        if self.gate_size + dimensions::GATE_SIZE_INCREMENT <= dimensions::GATE_SIZE_MAX {
+            self.gate_size = self.gate_size + dimensions::GATE_SIZE_INCREMENT;
         }
     }
 
     pub fn decrease_gate_size(&mut self) {
-        const GATE_SIZE_MIN: f32 = 10.0;
-        if self.gate_size - 0.5 > GATE_SIZE_MIN {
-            self.gate_size = self.gate_size - 0.5;
+        if self.gate_size - dimensions::GATE_SIZE_INCREMENT >= dimensions::GATE_SIZE_MIN {
+            self.gate_size = self.gate_size - dimensions::GATE_SIZE_INCREMENT;
+        }
+    }
+
+    // --- Line thickeness management ---
+
+    pub fn set_line_thickness(&mut self, value: f32) {
+        if value <= dimensions::LINE_THICKNESS_MAX && value >= dimensions::LINE_THICKNESS_MIN {
+            self.line_thickness = value;
+        }
+    }
+
+    pub fn increase_line_thickness(&mut self) {
+        if self.line_thickness + dimensions::LINE_THICKENSS_INCREMENT <= dimensions::LINE_THICKNESS_MAX {
+            self.line_thickness = self.line_thickness + dimensions::LINE_THICKENSS_INCREMENT;
+        }
+    }
+
+    pub fn decrease_line_thickness(&mut self) {
+        if self.line_thickness - dimensions::LINE_THICKENSS_INCREMENT >= dimensions::LINE_THICKNESS_MIN {
+            self.line_thickness = self.line_thickness - dimensions::LINE_THICKENSS_INCREMENT;
+        }
+    }
+
+    // --- Corner radius management ---
+
+    pub fn set_corner_radius(&mut self, value: f32) {
+        if value <= dimensions::CORNER_RADIUS_MAX && value >= dimensions::CORNER_RADIUS_MIN {
+            self.corner_radius = value;
+        }
+    }
+
+    pub fn increase_corner_radius(&mut self) {
+        if self.corner_radius + dimensions::CORNER_RADIUS_INCREMENT <= dimensions::CORNER_RADIUS_MAX {
+            self.corner_radius = self.corner_radius + dimensions::CORNER_RADIUS_INCREMENT;
+        }
+    }
+
+    pub fn decrease_corner_radius(&mut self) {
+        if self.corner_radius - dimensions::CORNER_RADIUS_INCREMENT >= dimensions::CORNER_RADIUS_MIN {
+            self.corner_radius = self.corner_radius - dimensions::CORNER_RADIUS_INCREMENT;
+        }
+    }
+
+    // --- Row gap management ---
+
+    pub fn set_row_gap(&mut self, value: f32) {
+        if value <= dimensions::ROW_GAP_MAX && value >= dimensions::ROW_GAP_MIN {
+            self.row_gap = value;
+        }
+    }
+
+    pub fn increase_row_gap(&mut self) {
+        if self.row_gap + dimensions::ROW_GAP_INCREMENT <= dimensions::ROW_GAP_MAX {
+            self.row_gap = self.row_gap + dimensions::ROW_GAP_INCREMENT;
+        }
+    }
+
+    pub fn decrease_row_gap(&mut self) {
+        if self.row_gap - dimensions::ROW_GAP_INCREMENT >= dimensions::ROW_GAP_MIN {
+            self.row_gap = self.row_gap - dimensions::ROW_GAP_INCREMENT;
+        }
+    }
+
+    // --- Column gap management ---
+
+    pub fn set_column_gap(&mut self, value: f32) {
+        if value <= dimensions::COLUMN_GAP_MAX && value >= dimensions::COLUMN_GAP_MIN {
+            self.column_gap = value;
+        }
+    }
+
+    pub fn increase_column_gap(&mut self) {
+        if self.column_gap + dimensions::COLUMN_GAP_INCREMENT <= dimensions::COLUMN_GAP_MAX {
+            self.column_gap = self.column_gap + dimensions::COLUMN_GAP_INCREMENT;
+        }
+    }
+
+    pub fn decrease_column_gap(&mut self) {
+        if self.column_gap - dimensions::COLUMN_GAP_INCREMENT >= dimensions::COLUMN_GAP_MIN {
+            self.column_gap = self.column_gap - dimensions::COLUMN_GAP_INCREMENT;
         }
     }
     

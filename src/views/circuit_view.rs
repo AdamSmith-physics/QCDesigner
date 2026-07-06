@@ -133,9 +133,9 @@ impl Render for CircuitView {
 
         let content = div()
             .flex().flex_row().items_start()
-            .px(px(render_settings.row_gap)) // Controls how much the wires stick out!
+            .px(px(render_settings.column_gap)) // Controls how much the wires stick out!
             .child(wire_canvas)
-            .gap(px(render_settings.row_gap))
+            .gap(px(render_settings.column_gap))
             .children(col_divs);
     
         let measured_content = MeasuredElement::new(content).on_width(on_width_cb);
