@@ -1,11 +1,11 @@
 use gpui::*;
 use gpui_component::{
-    button::{Button, Toggle, ToggleGroup, ToggleVariants},
+    // button::{Button, Toggle, ToggleGroup, ToggleVariants},
     input::{InputEvent, InputState, NumberInput, NumberInputEvent, StepAction},
     Sizable,
     v_flex, h_flex,
 };
-use crate::{models::Circuit, utils::defaults::render_settings};
+use crate::{models::Circuit};
 use crate::utils::dimensions;
 
 // --- end of imports ---
@@ -15,16 +15,13 @@ pub struct CircuitSettingsView {
     // Models
     circuit: Entity<Circuit>,
 
-    // Other Entities
+    // Input Entities
     num_qubits_input: Entity<InputState>,
     gate_size_input: Entity<InputState>,
     line_thickness_input: Entity<InputState>,
     corner_radius_input: Entity<InputState>,
     row_gap_input: Entity<InputState>,
     column_gap_input: Entity<InputState>,
-
-    // Private fields
-    checked: Vec<bool>,
 
      // Subscriptions
      _subscriptions: Vec<Subscription>,
@@ -97,7 +94,6 @@ impl CircuitSettingsView {
             corner_radius_input: corner_radius_input,
             row_gap_input: row_gap_input,
             column_gap_input: column_gap_input,
-            checked: vec![false; 10],
             _subscriptions: _subscriptions,
         }
     }

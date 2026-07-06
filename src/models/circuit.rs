@@ -1,4 +1,4 @@
-use crate::{models::RenderSettings, utils::defaults::render_settings};
+use crate::{models::RenderSettings};
 
 // --- End of imports ---
 

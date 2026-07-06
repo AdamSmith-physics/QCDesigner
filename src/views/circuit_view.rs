@@ -1,16 +1,9 @@
 use gpui::*;
 use crate::models::{Coordinate, Circuit};
 use crate::components::{ ScrollCenter, MeasuredElement, add_gate_button, gate_button };
-use crate::utils::defaults::render_settings;
 
 // --- end of imports ---
 
-
-// --- Layout constants ---
-
-const BUTTON_SIZE: f32 = 30.0;
-const LINE_THICKNESS: f32 = 1.0;
-const ROW_GAP: f32 = 8.0;
 
 /// Renders the circuit grid with gate buttons and background wires.
 pub struct CircuitView {
