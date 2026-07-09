@@ -1,5 +1,6 @@
-use crate::{models::RenderSettings};
-use crate::utils::Coordinate;
+use crate::models::{RenderSettings, Gate};
+use crate::utils::{GateType,Coordinate};
+
 
 // --- End of imports ---
 
@@ -10,6 +11,7 @@ pub struct Circuit {
     pub cols:  usize,
     
     pub render_settings: RenderSettings,
+    gates: Vec<Gate>,
     selected_gates: Vec<Coordinate>,
     pub last_clicked: Option<Coordinate>,
 }
@@ -23,6 +25,7 @@ impl Circuit {
             rows: rows,
             cols: columns,
             render_settings: render_settings,
+            gates: Vec::new(),
             selected_gates: Vec::new(),
             last_clicked: None,
         }
@@ -32,6 +35,10 @@ impl Circuit {
     pub fn add_gate(&mut self, coordinate: Coordinate) {
         if self.is_selected(&coordinate) { return };
         self.selected_gates.push(coordinate);
+        
+        let new_gate = Gate::new(GateType::SingleQubit, coordinate);
+        self.gates.push(new_gate);
+
         self.last_clicked = Some(coordinate);
     } 
     
@@ -42,6 +49,13 @@ impl Circuit {
                 self.selected_gates.remove(ii);
             }
         }
+
+        for (ii, gate) in self.gates.clone().iter().enumerate() {
+            if gate.coordinate() == *coordinate {
+                self.gates.remove(ii);
+            }
+        }
+        
         self.last_clicked = None;
     }
     
@@ -64,6 +78,11 @@ impl Circuit {
             }
         }
         gate_number as i32
+    }
+
+    pub fn get_gate_at_coordinate(&self, coordinate: &Coordinate) -> Option<&Gate> {
+        self.gates.iter().find(|&x| x.coordinate() == *coordinate)
+        // for gate in self.gates.clone().iter();
     }
 
      // --- Row management ---

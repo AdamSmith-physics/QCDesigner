@@ -85,6 +85,7 @@ impl Render for CircuitView {
                     true => {
                         col_elems.push(gate_button(
                             render_settings,
+                            circuit.get_gate_at_coordinate(&coord).expect("No gate at coord!").clone(),
                             circuit.get_gate_number(&coord),
                             cx.listener(move |this: &mut CircuitView, _, _, cx| {
                                 this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
