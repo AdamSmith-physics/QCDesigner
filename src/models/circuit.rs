@@ -1,14 +1,8 @@
 use crate::{models::RenderSettings};
+use crate::utils::Coordinate;
 
 // --- End of imports ---
 
-
-/// Position in the circuit grid.
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub struct Coordinate {
-    pub row: usize,
-    pub column: usize
-}
 
 /// The circuit model: grid dimensions, selected gates, and last-click tracking.
 pub struct Circuit {

@@ -6,7 +6,7 @@ static NEXT_GATE_ID: AtomicU64 = AtomicU64::new(0);
 pub struct GateId(u64);
 
 impl GateId {
-    fn next() -> Self {
+    pub fn next() -> Self {
         Self(NEXT_GATE_ID.fetch_add(1, Ordering::Relaxed))
     }
 }

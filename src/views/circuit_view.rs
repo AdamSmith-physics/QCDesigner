@@ -1,5 +1,6 @@
 use gpui::*;
-use crate::models::{Coordinate, Circuit};
+use crate::models::Circuit;
+use crate::utils::Coordinate;
 use crate::components::{ ScrollCenter, MeasuredElement, add_gate_button, gate_button };
 
 // --- end of imports ---
