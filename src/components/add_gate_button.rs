@@ -33,7 +33,7 @@ pub fn add_gate_button(
     div()
         .group("gate-button")
         .relative()
-        .min_w(px(render_settings.gate_size))
+        .w(px(render_settings.gate_size))
         .h(px(render_settings.gate_size))
         .rounded(px(render_settings.corner_radius))
         .border(px(render_settings.line_thickness))

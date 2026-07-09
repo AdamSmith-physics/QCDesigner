@@ -2,6 +2,7 @@ use gpui::*;
 
 use crate::models::{RenderSettings, Gate};
 use crate::utils::constants::gate_button as constants;
+use crate::utils::dimensions;
 
 // --- gate_button ---
 //
@@ -18,6 +19,7 @@ pub fn gate_button(
 
     div()
         .group("gate-button")
+        .p(dimensions::gate_button::LABEL_PADDING)
         .flex()
         .justify_center()
         .items_center()
@@ -30,7 +32,7 @@ pub fn gate_button(
         .hover(|style| style.border(px(1.5*render_settings.line_thickness)))
         .cursor_pointer()
         .child(gate.label.unwrap_or(format!("{}", button_number)))
-        .child(format!("{}", button_number))
+        // .child(format!("{}", button_number))
         .on_mouse_up(MouseButton::Left, on_click)
         .into_any_element()
 }

@@ -74,6 +74,7 @@ impl RenderOnce for ScrollCenter {
          // The deferred cx.notify() then schedules a second frame which renders
          // the content correctly from the start.
         if self.min_content_width.is_none() {
+            println!("Re-rendering");
             return div()
                 .flex_1()
                 .min_h(px(0.0))
