@@ -29,7 +29,11 @@ pub fn gate_button(
         .border(px(render_settings.line_thickness))
         .border_color(constants::BUTTON_FG)
         .bg(constants::BUTTON_BG)
-        .hover(|style| style.border(px(1.5*render_settings.line_thickness)))
+        .hover(|style| {
+            style
+                // .border(px(1.5*render_settings.line_thickness))
+                .shadow(vec![constants::BOX_SHADOW])
+        })
         .cursor_pointer()
         .child(gate.label.unwrap_or(format!("{}", button_number)))
         // .child(format!("{}", button_number))
