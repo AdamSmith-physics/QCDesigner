@@ -1,13 +1,13 @@
 use crate::utils::{GateId, GateType, Coordinate};
 
-#[derive(Clone)]
+#[derive(Clone,PartialEq,Eq)]
 pub struct Gate {
     id: GateId,
     gate_type: GateType,
     slice: usize,
     qubits: Vec<usize>,
     pub label: Option<String>
-    // future fields: gate type, label, etc.
+    // future fields
 }
 
 impl Gate {

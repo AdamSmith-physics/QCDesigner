@@ -1,5 +1,5 @@
 
-#[derive(Clone)]
+#[derive(Clone,PartialEq,Eq)]
 pub enum GateType {
     SingleQubit,
     TwoQubit,
