@@ -1,6 +1,6 @@
 use gpui::*;
 use crate::models::Circuit;
-use crate::utils::{Coordinate, dimensions};
+use crate::utils::{Coordinate, GateType, dimensions};
 use crate::components::{ ScrollCenter, MeasuredElement, add_gate_button, gate_button };
 
 // --- end of imports ---
@@ -30,6 +30,14 @@ impl CircuitView {
             scroll_handle: ScrollHandle::new(),
             content_width: None,
         }
+    }
+
+    pub fn deselect(&mut self, cx: &mut Context<Self>) {
+        cx.listener(move |this: &mut CircuitView, _: &MouseUpEvent, _, cx| {
+            this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
+                circ.deselect_gate();
+            })      
+        }); 
     }
 }
 
@@ -65,10 +73,31 @@ impl Render for CircuitView {
 
                 let coord = Coordinate {row: row, column: col};
 
-                match circuit.is_selected(&coord) {
+                let check_gate = circuit.get_gate_at_coordinate(&coord);
 
-                    // Add button for adding gates
-                    false => {
+                match check_gate {
+                    Some(gate) => {
+                        let gate_for_listener = gate.clone();
+                        col_elems.push(gate_button(
+                            render_settings,
+                            gate.clone(),
+                            circuit.is_selected(gate),
+                            cx.listener(move |this: &mut CircuitView, _, b, cx| {
+                                let gate = gate_for_listener.clone();
+                                this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
+                                    // circ.remove_gate(&coord);
+                                    circ.select_gate(gate);
+                                    println!("button clicked!");
+                                    cx.notify();
+                                });
+                            }),
+                        ));
+                        match gate.gate_type {
+                            GateType::SingleQubit => row += 1,
+                            _ => row += 1,
+                        }
+                    }
+                    None => {
                         col_elems.push(add_gate_button(
                             render_settings,
                             cx.listener(move |this: &mut CircuitView, _, _, cx| {
@@ -79,25 +108,9 @@ impl Render for CircuitView {
                                 });
                             }),
                         ));
-                    },
-
-                    // Add button with number selected.
-                    true => {
-                        col_elems.push(gate_button(
-                            render_settings,
-                            circuit.get_gate_at_coordinate(&coord).expect("No gate at coord!").clone(),
-                            circuit.get_gate_number(&coord),
-                            cx.listener(move |this: &mut CircuitView, _, _, cx| {
-                                this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
-                                    circ.remove_gate(&coord);
-                                    println!("button clicked!");
-                                    cx.notify();
-                                });
-                            }),
-                        ));
+                        row += 1;
                     }
-                };
-                row += 1;
+                }
             }
         
             col_divs.push(

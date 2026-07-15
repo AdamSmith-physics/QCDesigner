@@ -1,3 +1,4 @@
+use gpui::prelude::FluentBuilder;
 use gpui::*;
 
 use crate::models::{RenderSettings, Gate};
@@ -13,7 +14,7 @@ use crate::utils::dimensions;
 pub fn gate_button(
     render_settings: RenderSettings,
     gate: Gate,
-    button_number: i32,
+    is_selected: bool,
     on_click:    impl Fn(&MouseUpEvent, &mut Window, &mut App) + 'static,
 ) -> AnyElement {
 
@@ -29,14 +30,21 @@ pub fn gate_button(
         .border(px(render_settings.line_thickness))
         .border_color(constants::BUTTON_FG)
         .bg(constants::BUTTON_BG)
-        .hover(|style| {
-            style
-                // .border(px(1.5*render_settings.line_thickness))
-                .shadow(vec![constants::BOX_SHADOW])
+        .when(!is_selected, |this| {
+            this
+                .hover(|style| {
+                    style
+                        // .border(px(1.5*render_settings.line_thickness))
+                        .shadow(vec![constants::BOX_SHADOW])
+                })
+        })
+        .when(is_selected, |this| {
+            this
+                .shadow(vec![constants::BOX_BORDER])
+                .border_color(constants::BUTTON_SELECTED)
         })
         .cursor_pointer()
-        .child(gate.label.unwrap_or(format!("{}", button_number)))
-        // .child(format!("{}", button_number))
+        .child(gate.label.unwrap_or(format!("")))
         .on_mouse_up(MouseButton::Left, on_click)
         .into_any_element()
 }

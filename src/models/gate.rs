@@ -1,9 +1,10 @@
+use gpui::Hsla;
 use crate::utils::{GateId, GateType, Coordinate};
 
 #[derive(Clone,PartialEq,Eq)]
 pub struct Gate {
     id: GateId,
-    gate_type: GateType,
+    pub gate_type: GateType,
     slice: usize,
     qubits: Vec<usize>,
     pub label: Option<String>
