@@ -33,11 +33,10 @@ impl CircuitView {
     }
 
     pub fn deselect(&mut self, cx: &mut Context<Self>) {
-        cx.listener(move |this: &mut CircuitView, _: &MouseUpEvent, _, cx| {
-            this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
-                circ.deselect_gate();
-            })      
-        }); 
+        self.circuit.update(cx, |circ, cx| {
+            circ.deselect_gate();
+            cx.notify();
+        });
     }
 }
 
@@ -82,7 +81,7 @@ impl Render for CircuitView {
                             render_settings,
                             gate.clone(),
                             circuit.is_selected(gate),
-                            cx.listener(move |this: &mut CircuitView, _, b, cx| {
+                            cx.listener(move |this: &mut CircuitView, _, _, cx| {
                                 let gate = gate_for_listener.clone();
                                 this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
                                     // circ.remove_gate(&coord);
@@ -90,6 +89,10 @@ impl Render for CircuitView {
                                     println!("button clicked!");
                                     cx.notify();
                                 });
+                                // Prevent this from bubbling up to RootView's
+                                // click-away handler, which would immediately
+                                // deselect the gate we just selected.
+                                cx.stop_propagation();
                             }),
                         ));
                         match gate.gate_type {
@@ -106,6 +109,10 @@ impl Render for CircuitView {
                                     println!("button clicked!");
                                     cx.notify();
                                 });
+                                // See note above: keep this click from
+                                // bubbling up to the click-away deselect
+                                // handler.
+                                cx.stop_propagation();
                             }),
                         ));
                         row += 1;
@@ -155,6 +162,12 @@ impl Render for CircuitView {
     
         // --- Root element ---
         div().flex_1().min_w(px(0.0)).flex().flex_col()
+            // Clicking anywhere in the circuit view that isn't already
+            // handled (gate cells call cx.stop_propagation() on their own
+            // click handlers above) deselects the current gate.
+            .on_mouse_up(MouseButton::Left, cx.listener(|this, _, _, cx| {
+                this.deselect(cx);
+            }))
             .child( 
                 ScrollCenter::new(self.scroll_handle.clone(), measured_content)
                     .p(dimensions::PADDING)

@@ -71,7 +71,7 @@ impl Circuit {
     }
 
     pub fn deselect_gate(&mut self) {
-        self.selected_gate == None;
+        self.selected_gate = None;
     }
     
     // /// Returns the index of the gate at `coordinate` (selection order), or 0 if not found.
