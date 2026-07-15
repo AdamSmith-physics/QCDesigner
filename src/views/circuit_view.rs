@@ -1,5 +1,6 @@
 use gpui::*;
-use crate::models::{Coordinate, Circuit};
+use crate::models::Circuit;
+use crate::utils::{Coordinate, dimensions};
 use crate::components::{ ScrollCenter, MeasuredElement, add_gate_button, gate_button };
 
 // --- end of imports ---
@@ -84,6 +85,7 @@ impl Render for CircuitView {
                     true => {
                         col_elems.push(gate_button(
                             render_settings,
+                            circuit.get_gate_at_coordinate(&coord).expect("No gate at coord!").clone(),
                             circuit.get_gate_number(&coord),
                             cx.listener(move |this: &mut CircuitView, _, _, cx| {
                                 this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
@@ -99,7 +101,12 @@ impl Render for CircuitView {
             }
         
             col_divs.push(
-                div().flex().flex_col().gap(px(render_settings.row_gap)).children(col_elems).into_any_element(),
+                div()
+                    .flex()
+                    .flex_col()
+                    .items_center()
+                    .gap(px(render_settings.row_gap))
+                    .children(col_elems).into_any_element(),
             );
         }
 
@@ -137,7 +144,7 @@ impl Render for CircuitView {
         div().flex_1().min_w(px(0.0)).flex().flex_col()
             .child( 
                 ScrollCenter::new(self.scroll_handle.clone(), measured_content)
-                    .p(px(render_settings.column_gap))
+                    .p(dimensions::PADDING)
                     .min_content_width(self.content_width),
             )
     }

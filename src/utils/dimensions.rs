@@ -2,7 +2,7 @@ use gpui::{Pixels, px};
 
 // --- Global dimensions ---
 
-pub const PADDING: Pixels = px(8.0);
+pub const PADDING: Pixels = px(16.0);
 pub const NUMBER_INPUT_WIDTH: Pixels = px(120.0);
 
 // --- RootView panel sizes ---
@@ -40,4 +40,11 @@ pub mod render_settings {
     pub const COLUMN_GAP_MAX: f32 = 20.0;
     pub const COLUMN_GAP_MIN: f32 = 1.0;
     pub const COLUMN_GAP_INCREMENT: f32 = 1.0;
+}
+
+
+pub mod gate_button {
+    use super::*;
+    
+    pub const LABEL_PADDING: Pixels = px(8.0);
 }

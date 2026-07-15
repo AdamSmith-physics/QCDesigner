@@ -73,19 +73,20 @@ impl RenderOnce for ScrollCenter {
          //   incorrectly-sized or un-centred content.
          // The deferred cx.notify() then schedules a second frame which renders
          // the content correctly from the start.
-        if self.min_content_width.is_none() {
-            return div()
-                .flex_1()
-                .min_h(px(0.0))
-                .relative()
-                .child(
-                    div()
-                        .absolute()
-                        .left(px(-99999.))
-                        .top(px(-99999.))
-                        .child(self.child),
-                );
-        }
+        // if self.min_content_width.is_none() {
+        //     println!("Re-rendering");
+        //     return div()
+        //         .flex_1()
+        //         .min_h(px(0.0))
+        //         .relative()
+        //         .child(
+        //             div()
+        //                 .absolute()
+        //                 .left(px(-99999.))
+        //                 .top(px(-99999.))
+        //                 .child(self.child),
+        //         );
+        // }
 
          // --- Normal rendering (content has been measured) ---
         let scroll_handle = self.scroll_handle.clone();

@@ -1,7 +1,8 @@
 use gpui::*;
 
-use crate::models::RenderSettings;
+use crate::models::{RenderSettings, Gate};
 use crate::utils::constants::gate_button as constants;
+use crate::utils::dimensions;
 
 // --- gate_button ---
 //
@@ -11,12 +12,14 @@ use crate::utils::constants::gate_button as constants;
 // function free of any view-type dependency.
 pub fn gate_button(
     render_settings: RenderSettings,
+    gate: Gate,
     button_number: i32,
     on_click:    impl Fn(&MouseUpEvent, &mut Window, &mut App) + 'static,
 ) -> AnyElement {
 
     div()
         .group("gate-button")
+        .p(dimensions::gate_button::LABEL_PADDING)
         .flex()
         .justify_center()
         .items_center()
@@ -26,9 +29,14 @@ pub fn gate_button(
         .border(px(render_settings.line_thickness))
         .border_color(constants::BUTTON_FG)
         .bg(constants::BUTTON_BG)
-        .hover(|style| style.border(px(1.5*render_settings.line_thickness)))
+        .hover(|style| {
+            style
+                // .border(px(1.5*render_settings.line_thickness))
+                .shadow(vec![constants::BOX_SHADOW])
+        })
         .cursor_pointer()
-        .child(format!("{}", button_number))
+        .child(gate.label.unwrap_or(format!("{}", button_number)))
+        // .child(format!("{}", button_number))
         .on_mouse_up(MouseButton::Left, on_click)
         .into_any_element()
 }
