@@ -39,10 +39,17 @@ pub mod gate_button {
     // Colours used by gate_button — fixed regardless of theme.
     pub const BUTTON_BG: Hsla = Hsla { h: 0., s: 0., l: 1.0,  a: 1.0 }; // white
     pub const BUTTON_FG: Hsla = Hsla { h: 0., s: 0., l: 0.0,  a: 1.0 }; // black
+    pub const BUTTON_SELECTED: Hsla = Hsla { h: 0.625, s: 0.73, l: 0.57,  a: 1.0 };
     pub const BOX_SHADOW: BoxShadow = BoxShadow {
         color: Hsla { h: 0.0, s: 0.0, l: 0.0, a: 1.0 },
         offset: Point { x: px(0.0), y: px(1.0) },
         blur_radius: px(3.0),
         spread_radius: px(0.0)
+    };
+    pub const BOX_BORDER: BoxShadow = BoxShadow {
+        color: BUTTON_SELECTED,
+        offset: Point { x: px(0.0), y: px(0.0) },
+        blur_radius: px(0.0),
+        spread_radius: px(1.0)
     };
 }

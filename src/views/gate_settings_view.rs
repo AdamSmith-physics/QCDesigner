@@ -1,10 +1,13 @@
 use gpui::*;
 use gpui_component::{
-    button::{Button, Toggle, ToggleGroup, ToggleVariants},
-    Sizable,
-    v_flex,
+    Sizable, 
+    button::{Button, Toggle, ToggleGroup, ToggleVariants}, 
+    input::{InputState, InputEvent, Input}, 
+    divider::Divider,
+    v_flex, h_flex,
 };
 use crate::models::Circuit;
+use crate::utils::dimensions;
 
 #[allow(dead_code)]
 /// View for configuring properties of a selected gate.
@@ -12,46 +15,137 @@ pub struct GateSettingsView {
     // Models
     circuit: Entity<Circuit>, 
 
+    // Inpuyt Entities
+    label_input: Entity<InputState>,
+    
     // Private fields
     checked: Vec<bool>,
+
+    // Subscriptions
+    _subsciptions: Vec<Subscription>,
 }
 
 impl GateSettingsView {
-    pub fn new(circuit: Entity<Circuit>, _: &mut Window, cx: &mut Context<Self>) -> Self {
-        cx.observe(&circuit, |_,_entity, cx| {
-            cx.notify()
-         }).detach();
+    pub fn new(circuit: Entity<Circuit>, window: &mut Window, cx: &mut Context<Self>) -> Self {
+        let gate_label = match circuit.read(cx).selected_gate() {
+            Some(gate) => gate.label.clone(),
+            None => None,
+        };
+        
+        let label_input = cx.new(|cx| {
+            InputState::new(window, cx)
+                .placeholder("Gate Label")
+                .default_value(gate_label.unwrap_or_default())
+        });
 
+        let _subscriptions = vec![
+            cx.subscribe_in(&label_input, window, Self::on_input_event),
+            cx.observe_in(&circuit, window, |this, _circuit, window, cx| {
+                let label_input = this.label_input.clone();
+                this.update_strings(&label_input, window, cx);
+                cx.notify()
+            }),
+        ];
+        
         Self {
             circuit: circuit,
+            label_input: label_input,
             checked: vec![false; 10],
+            _subsciptions: _subscriptions,
          }
+     }
+
+
+     fn update_strings(&mut self, state: &Entity<InputState>, window: &mut Window, cx: &mut Context<Self>){
+        if state == &self.label_input {
+            let label = self.circuit.read(cx)
+                .selected_gate()
+                .and_then(|gate| gate.label.clone())
+                .unwrap_or_default();
+
+            state.update(cx, |input, cx| {
+                input.set_value(label, window, cx);
+            });
+        }
+     }
+
+     
+     /// Reacts to text changes and Enter key in the row-count input.
+     fn on_input_event(
+         &mut self,
+         state: &Entity<InputState>,
+         event: &InputEvent,
+         window: &mut Window,
+         cx: &mut Context<Self>,
+     ) {
+         match event {
+             InputEvent::Change => {},
+             InputEvent::PressEnter { secondary } => {
+                 let text = state.read(cx).value();
+                 if state == &self.label_input {
+                     self.circuit.update(cx, |circuit, cx| {
+                        // Gate settings will only be shown if gate is selected
+                         let selected_gate = circuit.selected_gate_mut().unwrap(); 
+                         selected_gate.label = Some(text);
+                         cx.notify();
+                     })
+                 }
+                 self.update_strings(state, window, cx);
+             },
+             InputEvent::Focus => {},
+             InputEvent::Blur => {},
+         }
+
      }
 }
 
 // --- Render ---
 
 impl Render for GateSettingsView {
-    fn render(&mut self, _: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
-        // TODO: Replace placeholder UI with actual gate property controls.
-        v_flex()
+    fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+
+        let circuit = self.circuit.read(cx);
+        let selected_gate_id = circuit.selected_gate;
+
+        // Div to be shown if no gate is selected
+        let none_div = v_flex()
              .p_2()
              .gap_2()
              .size_full()
              .items_center()
-             .child("This is the Gate Settings View!")
-             .child(
-                Button::new("ok")
-                     .label("Let's Go!")
-                     .on_click(|_, _, _| println!("Clicked!")),
-             )
-             .child(
-                ToggleGroup::new("toggle-button-group-segmented-outline")
-                     .small()
-                     .outline()
-                     .children((0..10).map(|row| {
-                        Toggle::new(row).label(format!("{}", row)).checked(self.checked[row])
-                    }))
-             )
+             .child("Please select a gate!");
+
+        
+        // Settings shown when gate is selected
+        let some_div = v_flex()
+            .p_2()
+            .gap_2()
+            .size_full()
+            .items_center()
+            .child(
+                h_flex()
+                    .w_full()
+                    .justify_start()
+                    .child("Gate Label")
+            )
+            .child(
+                h_flex()
+                    .justify_center()
+                    .w_full()
+                    .child(Input::new(&self.label_input).cleanable(true))
+            )
+            .child(Divider::horizontal().w_full().pt_2());
+
+
+        match selected_gate_id {
+            Some(_) => {
+                some_div
+            },
+            None => {
+                none_div
+            }
+        }
+
+        
      }
 }
