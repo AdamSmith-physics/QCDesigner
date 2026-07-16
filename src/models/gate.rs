@@ -18,7 +18,7 @@ impl Gate {
             gate_type: gate_type,
             slice: coordinate.column,
             qubits: vec![coordinate.row],
-            label: Some(format!("Long String").into()),
+            label: Some(format!("U").into()),
         }
     }
 
