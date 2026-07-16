@@ -1,4 +1,4 @@
-use gpui::Hsla;
+use gpui::{Hsla, SharedString};
 use crate::utils::{GateId, GateType, Coordinate};
 
 #[derive(Clone,PartialEq,Eq)]
@@ -7,7 +7,7 @@ pub struct Gate {
     pub gate_type: GateType,
     slice: usize,
     qubits: Vec<usize>,
-    pub label: Option<String>
+    pub label: Option<SharedString>
     // future fields
 }
 
@@ -18,7 +18,7 @@ impl Gate {
             gate_type: gate_type,
             slice: coordinate.column,
             qubits: vec![coordinate.row],
-            label: Some(format!("Long String")),
+            label: Some(format!("Long String").into()),
         }
     }
 

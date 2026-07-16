@@ -72,15 +72,16 @@ impl Render for CircuitView {
 
                 let coord = Coordinate {row: row, column: col};
 
-                let check_gate = circuit.get_gate_at_coordinate(&coord);
+                let check_gate_id = circuit.get_gate_at_coordinate(&coord);
 
-                match check_gate {
-                    Some(gate) => {
+                match check_gate_id {
+                    Some(gate_id) => {
+                        let gate = circuit.get_gate(gate_id).expect("There should be a gate with this ID!");
                         let gate_for_listener = gate.clone();
                         col_elems.push(gate_button(
                             render_settings,
                             gate.clone(),
-                            circuit.is_selected(gate),
+                            circuit.is_selected(gate_id),
                             cx.listener(move |this: &mut CircuitView, _, _, cx| {
                                 let gate = gate_for_listener.clone();
                                 this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
@@ -95,6 +96,8 @@ impl Render for CircuitView {
                                 cx.stop_propagation();
                             }),
                         ));
+                        
+                        // Move number of rows depending on gate type
                         match gate.gate_type {
                             GateType::SingleQubit => row += 1,
                             _ => row += 1,
