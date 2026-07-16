@@ -49,7 +49,7 @@ impl LatexLabel {
     /// `compile` is called here (at construction time) so that `render` never
     /// has to block on Typst.  If compilation fails the error is stored in
     /// `cached` and displayed as red text at render time.
-    fn new(latex: impl Into<SharedString>, font_size: f32, color: impl Into<Hsla>, svg_store: SvgStore) -> Self {
+    pub fn new(latex: impl Into<SharedString>, font_size: f32, color: impl Into<Hsla>, svg_store: SvgStore) -> Self {
         let latex: SharedString = latex.into();
         // Compile eagerly so the first `render` call has a result ready.
         let cached = Self::compile(&latex, font_size, &svg_store);

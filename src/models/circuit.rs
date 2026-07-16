@@ -1,3 +1,5 @@
+use gpui::Context;
+
 use crate::models::{RenderSettings, Gate};
 use crate::utils::{GateType, GateId, Coordinate};
 
@@ -32,8 +34,8 @@ impl Circuit {
     }
     
     /// Add a gate at the given coordinate.  No-op if already selected.
-    pub fn add_gate(&mut self, coordinate: Coordinate) {
-        let new_gate = Gate::new(GateType::SingleQubit, coordinate);
+    pub fn add_gate(&mut self, coordinate: Coordinate, cx: &mut Context<Self>) {
+        let new_gate = Gate::new(GateType::SingleQubit, coordinate, cx);
         self.gates.push(new_gate);
 
         self.last_clicked = Some(coordinate);

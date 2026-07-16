@@ -36,6 +36,9 @@ pub mod add_gate_button {
 pub mod gate_button {
     use super::*;
 
+    /// Font size (logical px / pt) used when rendering a gate's label as LaTeX.
+    pub const LATEX_FONT_SIZE: f32 = 20.0;
+
     // Colours used by gate_button — fixed regardless of theme.
     pub const BUTTON_BG: Hsla = Hsla { h: 0., s: 0., l: 1.0,  a: 1.0 }; // white
     pub const BUTTON_FG: Hsla = Hsla { h: 0., s: 0., l: 0.0,  a: 1.0 }; // black

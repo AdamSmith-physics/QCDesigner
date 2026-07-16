@@ -86,7 +86,7 @@ impl GateSettingsView {
                      self.circuit.update(cx, |circuit, cx| {
                         // Gate settings will only be shown if gate is selected
                          let selected_gate = circuit.selected_gate_mut().unwrap(); 
-                         selected_gate.label = Some(text);
+                         selected_gate.set_label(text, cx);
                          cx.notify();
                      })
                  }

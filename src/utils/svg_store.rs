@@ -33,7 +33,7 @@ use std::{
     sync::{Arc, RwLock},
 };
 use anyhow::Result;
-use gpui::{AssetSource, SharedString};
+use gpui::{AssetSource, Global, SharedString};
 
 /// Thread-safe, in-memory store for SVG assets, registered with GPUI as an
 /// [`AssetSource`].
@@ -181,3 +181,8 @@ impl AssetSource for SvgStore {
         Ok(vec![])
     }
 }
+
+/// Allows `SvgStore` to be stored as a GPUI global (via `cx.set_global`), so
+/// any code with access to an `App`/`Context` can obtain a cheap clone via
+/// `cx.global::<SvgStore>()` without threading it through every constructor.
+impl Global for SvgStore {}

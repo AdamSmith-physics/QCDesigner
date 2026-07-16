@@ -4,6 +4,8 @@ use gpui_component_assets::Assets as ComponentAssets;
 use rust_embed::RustEmbed;
 use std::borrow::Cow;
 
+use crate::utils::SvgStore;
+
 // Embeds everything under src/bin/gpui-layout-design/ matching icons/**/*.svg.
 // Each file is accessible at its path relative to that folder, e.g. "icons/share.svg".
 #[derive(RustEmbed)]
@@ -13,13 +15,25 @@ struct LocalAssets;
 
 // --- CompositeAssets ---
 //
-// Checks gpui-component-assets first (built-in icons), then falls back to
-// LocalAssets (your custom SVGs).  Pass this to Application::with_assets().
+// Checks the runtime `SvgStore` first (LaTeX-rendered SVGs generated at
+// runtime by Typst), then gpui-component-assets (built-in icons), then falls
+// back to LocalAssets (your custom SVGs). Pass this to Application::with_assets().
 
-pub struct CompositeAssets;
+pub struct CompositeAssets {
+    svg_store: SvgStore,
+}
+
+impl CompositeAssets {
+    pub fn new(svg_store: SvgStore) -> Self {
+        Self { svg_store }
+    }
+}
 
 impl AssetSource for CompositeAssets {
     fn load(&self, path: &str) -> Result<Option<Cow<'static, [u8]>>> {
+        if let Some(data) = self.svg_store.load(path)? {
+            return Ok(Some(data));
+        }
         if let Ok(Some(data)) = ComponentAssets.load(path) {
             return Ok(Some(data));
         }

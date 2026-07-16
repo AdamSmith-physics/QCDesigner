@@ -1,7 +1,7 @@
 use gpui::*;
 use crate::models::Circuit;
 use crate::utils::{Coordinate, GateType, dimensions};
-use crate::components::{ LatexLabel, ScrollCenter, MeasuredElement, add_gate_button, gate_button };
+use crate::components::{ ScrollCenter, MeasuredElement, add_gate_button, gate_button };
 
 // --- end of imports ---
 
@@ -108,7 +108,7 @@ impl Render for CircuitView {
                             render_settings,
                             cx.listener(move |this: &mut CircuitView, _, _, cx| {
                                 this.circuit.update(cx, move |circ, cx: &mut Context<Circuit>| {
-                                    circ.add_gate(coord);
+                                    circ.add_gate(coord, cx);
                                     println!("button clicked!");
                                     cx.notify();
                                 });
