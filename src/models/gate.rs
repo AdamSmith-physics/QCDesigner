@@ -15,6 +15,11 @@ pub struct Gate {
     // so the (expensive) Typst compilation only happens when the label text
     // actually changes -- never on every render.
     latex_label: Entity<LatexLabel>,
+    // Whether `gate_button` should render `latex_label` (compiled SVG) or
+    // fall back to plain text (`label`). Defaults to `false` so gates render
+    // exactly as they did before LaTeX support was added, until explicitly
+    // toggled on in `GateSettingsView`.
+    render_latex: bool,
     // future fields
 }
 
@@ -33,6 +38,7 @@ impl Gate {
             qubits: vec![coordinate.row],
             label: Some(label),
             latex_label,
+            render_latex: false,
         }
     }
 
@@ -62,5 +68,18 @@ impl Gate {
             latex_label.set_latex(label.clone(), cx);
         });
         self.label = Some(label);
+    }
+
+    /// Whether `gate_button` should render `latex_label` instead of the
+    /// plain-text `label`.
+    pub fn render_latex(&self) -> bool {
+        self.render_latex
+    }
+
+    /// Toggle whether this gate's label is rendered as LaTeX (compiled SVG)
+    /// or as plain text. Does not touch `latex_label` -- it stays compiled
+    /// and cached either way, so flipping this back on is instant.
+    pub fn set_render_latex(&mut self, render_latex: bool) {
+        self.render_latex = render_latex;
     }
 }

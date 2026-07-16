@@ -4,6 +4,7 @@ use gpui_component::{
     button::{Button, Toggle, ToggleGroup, ToggleVariants}, 
     input::{InputState, InputEvent, Input}, 
     divider::Divider,
+    switch::Switch,
     v_flex, h_flex,
 };
 use crate::models::Circuit;
@@ -106,6 +107,7 @@ impl Render for GateSettingsView {
 
         let circuit = self.circuit.read(cx);
         let selected_gate_id = circuit.selected_gate;
+        let render_latex = circuit.selected_gate().map(|gate| gate.render_latex()).unwrap_or(false);
 
         // Div to be shown if no gate is selected
         let none_div = v_flex()
@@ -133,6 +135,27 @@ impl Render for GateSettingsView {
                     .justify_center()
                     .w_full()
                     .child(Input::new(&self.label_input).cleanable(true))
+            )
+            .child(
+                h_flex()
+                    .w_full()
+                    .justify_between()
+                    .items_center()
+                    .child("Render as LaTeX")
+                    .child(
+                        Switch::new("render-latex-switch")
+                            .small()
+                            .checked(render_latex)
+                            .on_click(cx.listener(|this, checked: &bool, _window, cx| {
+                                let checked = *checked;
+                                this.circuit.update(cx, |circuit, cx| {
+                                    if let Some(gate) = circuit.selected_gate_mut() {
+                                        gate.set_render_latex(checked);
+                                    }
+                                    cx.notify();
+                                });
+                            }))
+                    )
             )
             .child(Divider::horizontal().w_full().pt_2());
 

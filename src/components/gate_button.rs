@@ -44,7 +44,11 @@ pub fn gate_button(
                 .border_color(constants::BUTTON_SELECTED)
         })
         .cursor_pointer()
-        .child(gate.latex_label().clone())
+        .child(if gate.render_latex() {
+            gate.latex_label().clone().into_any_element()
+        } else {
+            gate.label.clone().unwrap_or_default().into_any_element()
+        })
         .on_mouse_up(MouseButton::Left, on_click)
         .into_any_element()
 }
