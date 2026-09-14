@@ -43,10 +43,16 @@ impl CircuitView {
 impl Render for CircuitView {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
 
-        // --- Content-width measurement callback ---
+// --- Content measurement callback ---
+         //
+         // MeasuredElement reports the full resolved Size<Pixels>.  We only
+         // need the width today (to feed ScrollCenter's min_content_width),
+         // so the height is ignored for now — the signature keeps it
+         // available when a consumer needs it later.
         let weak = cx.weak_entity();
-        let on_width_cb = move |width: Pixels, window: &mut Window, cx: &mut App| {
+        let on_measure_cb = move |size: Size<Pixels>, window: &mut Window, cx: &mut App| {
             window.defer(cx, move |_window, cx| {
+                let width = size.width;
                 if let Some(entity) = weak.upgrade() {
                     entity.update(cx, |this: &mut CircuitView, cx| {
                         if this.content_width != Some(width) {
@@ -161,7 +167,7 @@ impl Render for CircuitView {
             .gap(px(render_settings.column_gap))
             .children(col_divs);
     
-        let measured_content = MeasuredElement::new(content).on_width(on_width_cb);
+        let measured_content = MeasuredElement::new(content).on_measure(on_measure_cb);
     
         // --- Root element ---
         div().flex_1().min_w(px(0.0)).flex().flex_col()
