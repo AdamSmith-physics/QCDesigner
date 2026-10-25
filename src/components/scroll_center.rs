@@ -1,5 +1,5 @@
-use gpui::*;
-use gpui_component::scroll::{ScrollableElement, ScrollbarAxis};
+use gpui_kit::*;
+use gpui_kit::component::scroll::{ScrollableElement, ScrollbarAxis};
 
 /// Centres its child vertically when smaller than the available space; scrolls
 /// when larger.

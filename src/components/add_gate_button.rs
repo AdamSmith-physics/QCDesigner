@@ -1,4 +1,4 @@
-use gpui::*;
+use gpui_kit::*;
 
 use crate::models::RenderSettings;
 use crate::utils::constants::add_gate_button as constants;

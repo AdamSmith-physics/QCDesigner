@@ -1,6 +1,6 @@
-use gpui::*;
-use gpui_component::{
-    Sizable, divider::Divider, h_flex, input::{InputEvent, InputState, NumberInput, NumberInputEvent, StepAction}, v_flex,
+use gpui_kit::*;
+use gpui_kit::component::{
+    Sizable, separator::Separator, h_flex, input::{InputEvent, InputState, NumberInput, NumberInputEvent, StepAction}, v_flex,
 };
 use crate::{models::Circuit};
 use crate::utils::dimensions;
@@ -33,39 +33,51 @@ impl CircuitSettingsView {
         let render_settings = circuit.read(cx).render_settings;
 
         let num_qubits_input = cx.new(|cx| {
-            InputState::new(window, cx)
+            let mut state = InputState::new(window, cx)
                 .placeholder("Integer")
-                .default_value(circuit.read(cx).rows.to_string())
+                .default_value(circuit.read(cx).rows.to_string());
+            state.set_step(None, window, cx);
+            state
         });
 
         let gate_size_input = cx.new(|cx| {
-            InputState::new(window, cx)
+            let mut state = InputState::new(window, cx)
                 .placeholder("Float")
-                .default_value(render_settings.gate_size.to_string())
+                .default_value(render_settings.gate_size.to_string());
+            state.set_step(None, window, cx);
+            state
         });
 
         let line_thickness_input = cx.new(|cx| {
-            InputState::new(window, cx)
+            let mut state = InputState::new(window, cx)
                 .placeholder("Float")
-                .default_value(render_settings.line_thickness.to_string())
+                .default_value(render_settings.line_thickness.to_string());
+            state.set_step(None, window, cx);
+            state
         });
 
         let corner_radius_input = cx.new(|cx| {
-            InputState::new(window, cx)
+            let mut state = InputState::new(window, cx)
                 .placeholder("Float")
-                .default_value(render_settings.corner_radius.to_string())
+                .default_value(render_settings.corner_radius.to_string());
+            state.set_step(None, window, cx);
+            state
         });
 
         let row_gap_input = cx.new(|cx| {
-            InputState::new(window, cx)
+            let mut state = InputState::new(window, cx)
                 .placeholder("Float")
-                .default_value(render_settings.row_gap.to_string())
+                .default_value(render_settings.row_gap.to_string());
+            state.set_step(None, window, cx);
+            state
         });
 
         let column_gap_input = cx.new(|cx| {
-            InputState::new(window, cx)
+            let mut state = InputState::new(window, cx)
                 .placeholder("Float")
-                .default_value(render_settings.column_gap.to_string())
+                .default_value(render_settings.column_gap.to_string());
+            state.set_step(None, window, cx);
+            state
         });
 
         let _subscriptions = vec![
@@ -128,7 +140,7 @@ impl CircuitSettingsView {
                 let text = state.read(cx).value();
                 println!("Change: {}", text);
             }
-            InputEvent::PressEnter { secondary } => {
+            InputEvent::PressEnter { secondary, .. } => {
                 let text = state.read(cx).value();
                 if let Ok(value_float) = text.parse::<f32>() {
                     let value_int = value_float as i64;
@@ -255,7 +267,7 @@ impl Render for CircuitSettingsView {
                     .min_w(dimensions::NUMBER_INPUT_WIDTH)
                     .child(NumberInput::new(&self.num_qubits_input).small())
             )
-            .child(Divider::horizontal().w_full().pt_2())
+            .child(Separator::horizontal().w_full().pt_2())
             .child(
                 h_flex()
                     .w_full()
@@ -268,7 +280,7 @@ impl Render for CircuitSettingsView {
                     .min_w(dimensions::NUMBER_INPUT_WIDTH)
                     .child(NumberInput::new(&self.gate_size_input).small())
             )
-            .child(Divider::horizontal().w_full().pt_2())
+            .child(Separator::horizontal().w_full().pt_2())
             .child(
                 h_flex()
                     .w_full()
@@ -281,7 +293,7 @@ impl Render for CircuitSettingsView {
                     .min_w(dimensions::NUMBER_INPUT_WIDTH)
                     .child(NumberInput::new(&self.line_thickness_input).small())
             )
-            .child(Divider::horizontal().w_full().pt_2())
+            .child(Separator::horizontal().w_full().pt_2())
             .child(
                 h_flex()
                     .w_full()
@@ -294,7 +306,7 @@ impl Render for CircuitSettingsView {
                     .min_w(dimensions::NUMBER_INPUT_WIDTH)
                     .child(NumberInput::new(&self.corner_radius_input).small())
             )
-            .child(Divider::horizontal().w_full().pt_2())
+            .child(Separator::horizontal().w_full().pt_2())
             .child(
                 h_flex()
                     .w_full()
@@ -307,7 +319,7 @@ impl Render for CircuitSettingsView {
                     .min_w(dimensions::NUMBER_INPUT_WIDTH)
                     .child(NumberInput::new(&self.row_gap_input).small())
             )
-            .child(Divider::horizontal().w_full().pt_2())
+            .child(Separator::horizontal().w_full().pt_2())
             .child(
                 h_flex()
                     .w_full()

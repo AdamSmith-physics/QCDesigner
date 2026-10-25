@@ -1,10 +1,10 @@
-use gpui::{*};
-use gpui_component::{
+use gpui_kit::*;
+use gpui_kit::component::{
     Icon, Sizable, TitleBar, Theme,
     h_flex, v_flex, 
     button::*, 
     tab::*,
-    divider::Divider,
+    separator::Separator,
     label::Label,
     resizable::{
         h_resizable, resizable_panel, v_resizable
@@ -125,7 +125,7 @@ impl Render for RootView {
                 v_flex()
                     .size_full()
                     .child(titlebar)
-                    .child(Divider::horizontal())
+                    .child(Separator::horizontal())
                     .child(
                         h_resizable("main")
                             .child(resizable_panel().child(

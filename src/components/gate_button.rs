@@ -1,5 +1,5 @@
-use gpui::prelude::FluentBuilder;
-use gpui::*;
+use gpui_kit::prelude::FluentBuilder;
+use gpui_kit::*;
 
 use crate::models::{RenderSettings, Gate};
 use crate::utils::constants::gate_button as constants;
@@ -19,6 +19,7 @@ pub fn gate_button(
 ) -> AnyElement {
 
     div()
+        .id(gate.id())
         .group("gate-button")
         .p(dimensions::gate_button::LABEL_PADDING)
         .flex()

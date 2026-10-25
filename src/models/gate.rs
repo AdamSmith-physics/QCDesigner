@@ -1,6 +1,6 @@
-use gpui::{App, AppContext, Entity, SharedString};
+use gpui_kit::{App, AppContext, Entity, SharedString};
 use crate::components::LatexLabel;
-use crate::utils::{GateId, GateType, Coordinate, SvgStore};
+use crate::utils::{GateId, GateType, Coordinate};
 use crate::utils::constants::gate_button as constants;
 
 #[derive(Clone,PartialEq,Eq)]
@@ -26,9 +26,8 @@ pub struct Gate {
 impl Gate {
     pub fn new(gate_type: GateType, coordinate: Coordinate, cx: &mut App) -> Self {
         let label: SharedString = "U".into();
-        let svg_store = cx.global::<SvgStore>().clone();
         let latex_label = cx.new(|_cx| {
-            LatexLabel::new(label.clone(), constants::LATEX_FONT_SIZE, constants::BUTTON_FG, svg_store)
+            LatexLabel::new(label.clone(), constants::LATEX_FONT_SIZE, constants::BUTTON_FG)
         });
 
         Self {

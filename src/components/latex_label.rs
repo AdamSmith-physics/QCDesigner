@@ -1,7 +1,11 @@
-use gpui::*;
+use std::{
+    collections::hash_map::DefaultHasher,
+    hash::{Hash, Hasher},
+    sync::Arc,
+};
+use gpui_kit::*;
 
 use crate::components::SvgInlineElement;
-use crate::utils::SvgStore;
 use crate::utils::latex_renderer::latex_to_svg;
 
 
@@ -25,22 +29,18 @@ pub struct LatexLabel {
     /// the foreground colour of the rendered glyphs.
     color: Hsla,
 
-    /// Shared handle to the SVG byte store.
-    /// `SvgStore` wraps `Arc<RwLock<…>>`, so this clone participates in the
-    /// same map that was registered with GPUI as an `AssetSource`.
-    svg_store: SvgStore,
-
     /// Pre-compiled render result.
     ///
-    /// * `Ok((key, width_pt, height_pt))` — compilation succeeded.  `key` is
-    ///   the path string under which the SVG bytes live in `SvgStore`; it is
-    ///   passed directly to `SvgInlineElement` / `paint_svg`.
+    /// * `Ok((key, bytes, width_pt, height_pt))` — compilation succeeded.
+    ///   `key` is a content-addressed path key used by GPUI's sprite atlas for
+    ///   caching, and `bytes` are the raw SVG bytes passed directly to
+    ///   `SvgInlineElement` / `paint_svg`.
     /// * `Err(msg)` — compilation failed; `msg` is shown as red text.
     ///
     /// Storing the result avoids re-compiling on every frame.  Typst
     /// compilation is synchronous and CPU-intensive, so doing it in `render`
     /// would stall the UI thread.
-    cached: Result<(SharedString, f32, f32), String>,
+    cached: Result<(SharedString, Arc<[u8]>, f32, f32), String>,
 }
 
 impl LatexLabel {
@@ -49,36 +49,25 @@ impl LatexLabel {
     /// `compile` is called here (at construction time) so that `render` never
     /// has to block on Typst.  If compilation fails the error is stored in
     /// `cached` and displayed as red text at render time.
-    pub fn new(latex: impl Into<SharedString>, font_size: f32, color: impl Into<Hsla>, svg_store: SvgStore) -> Self {
+    pub fn new(latex: impl Into<SharedString>, font_size: f32, color: impl Into<Hsla>) -> Self {
         let latex: SharedString = latex.into();
         // Compile eagerly so the first `render` call has a result ready.
-        let cached = Self::compile(&latex, font_size, &svg_store);
-        Self { latex, font_size, color: color.into(), svg_store, cached }
+        let cached = Self::compile(&latex, font_size);
+        Self { latex, font_size, color: color.into(), cached }
     }
 
-    /// Compile a LaTeX string into an SVG and register it with the store.
-    ///
-    /// This is a **static** (associated) method rather than an instance method
-    /// so it can be called from three different call sites without borrowing
-    /// `self`:
-    ///   * `new` — `self` doesn't exist yet.
-    ///   * `set_latex` — borrows `self.svg_store` immutably while assigning to
-    ///     `self.cached` (a mutable borrow of `self`).
-    ///   * `set_font_size` — same pattern.
-    ///
-    /// Making it static lets all three sites share one implementation without
-    /// lifetime conflicts.
+    /// Compile a LaTeX string into an SVG and compute its content-hash cache key.
     fn compile(
         latex: &str,
         font_size: f32,
-        store: &SvgStore,
-    ) -> Result<(SharedString, f32, f32), String> {
+    ) -> Result<(SharedString, Arc<[u8]>, f32, f32), String> {
         // Runs the full LaTeX → Typst → SVG pipeline.
         let svg = latex_to_svg(latex, font_size)?;
-        // Register the bytes in the shared store and get back the unique path key.
-        // The key is a content-addressed or UUID string (see SvgStore::insert).
-        let path = store.insert(svg.svg_bytes);
-        Ok((path, svg.width_pt, svg.height_pt))
+        let mut hasher = DefaultHasher::new();
+        svg.svg_bytes.hash(&mut hasher);
+        let path: SharedString = format!("latex-svg/{:016x}.svg", hasher.finish()).into();
+        let data: Arc<[u8]> = Arc::from(svg.svg_bytes);
+        Ok((path, data, svg.width_pt, svg.height_pt))
     }
 
     /// Replace the displayed equation with new LaTeX source.
@@ -95,7 +84,7 @@ impl LatexLabel {
         let new_latex: SharedString = latex.into();
         if self.latex != new_latex {
             self.latex = new_latex;
-            self.cached = Self::compile(&self.latex, self.font_size, &self.svg_store);
+            self.cached = Self::compile(&self.latex, self.font_size);
             // Mark this entity dirty so GPUI calls `render` on the next frame.
             cx.notify();
         }
@@ -112,7 +101,7 @@ impl LatexLabel {
     pub fn set_font_size(&mut self, size: f32, cx: &mut Context<Self>) {
         if (self.font_size - size).abs() > f32::EPSILON {
             self.font_size = size;
-            self.cached = Self::compile(&self.latex, self.font_size, &self.svg_store);
+            self.cached = Self::compile(&self.latex, self.font_size);
             // Schedule a repaint now that the cached SVG has changed.
             cx.notify();
         }
@@ -127,13 +116,10 @@ impl Render for LatexLabel {
     /// cached result and build the lightweight element tree.
     fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
         match &self.cached {
-            Ok((path, width_pt, height_pt)) => {
-                // The SVG bytes live in SvgStore under `path`.  GPUI will call
-                // `AssetSource::load(path)` during the paint phase, retrieve the
-                // bytes, rasterise the SVG at the physical pixel resolution, and
-                // tint every pixel with `self.color`.
+            Ok((path, data, width_pt, height_pt)) => {
                 SvgInlineElement::new(
                     path.clone(),
+                    data.clone(),
                     px(*width_pt),  // logical width: pt == px at 72 dpi
                     px(*height_pt), // logical height: same reasoning
                     self.color,

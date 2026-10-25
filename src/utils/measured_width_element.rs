@@ -42,7 +42,7 @@
 // `prepaint`. Using `Option` lets us move out of `&mut self`; the `None`
 // branch is unreachable in normal use (GPUI never calls prepaint twice).
 
-use gpui::{AnyElement, App, Bounds, Element, ElementId, GlobalElementId, InspectorElementId,
+use gpui_kit::{AnyElement, App, Bounds, Element, ElementId, GlobalElementId, InspectorElementId,
            IntoElement, LayoutId, Pixels, Window};
 
 // ────────────────────────────────────────────────────────────────────────────

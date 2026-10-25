@@ -32,22 +32,23 @@
 // `AssetSource`) maps our runtime-generated path keys back to bytes when GPUI
 // first needs to rasterize an SVG.
 
-use gpui::{
+use std::sync::Arc;
+use gpui_kit::{
     App, Bounds, Element, ElementId, GlobalElementId, Hsla, InspectorElementId, IntoElement,
     LayoutId, Pixels, SharedString, Size, Style, TransformationMatrix, Window,
 };
 
 /// A custom GPUI element that renders an in-memory SVG using `paint_svg`.
 ///
-/// The SVG bytes live in an `SvgStore` (an `AssetSource`). GPUI's `paint_svg`
-/// renders the SVG as a monochrome alpha-mask sprite — vector-crisp at any
-/// DPI, tinted with the provided color.  No manual rasterization is required.
+/// GPUI's `paint_svg` renders the SVG as a monochrome alpha-mask sprite —
+/// vector-crisp at any DPI, tinted with the provided color, and cached in the
+/// sprite atlas under `path`. No manual rasterization or global `AssetSource`
+/// store is required.
 ///
 /// # Usage
 ///
-/// ```/dev/null/usage_example.rs#L1-6
-/// let path = svg_store.insert(svg_bytes);
-/// SvgInlineElement::new(path, px(120.0), px(18.0), black())
+/// ```/dev/null/usage_example.rs#L1-5
+/// SvgInlineElement::new(path, svg_bytes, px(120.0), px(18.0), black())
 ///     .into_any_element()
 /// ```
 ///
@@ -58,12 +59,14 @@ use gpui::{
 /// the dimensions come from the typesetter and must be preserved to avoid
 /// distorting the formula.
 pub struct SvgInlineElement {
-    /// Cache key in the `SvgStore`, e.g. `"latex-svg/deadbeef01234567.svg"`.
+    /// Cache key for GPUI's sprite atlas, e.g. `"latex-svg/deadbeef01234567.svg"`.
     ///
-    /// This string is passed verbatim to `paint_svg` and used by GPUI as the
-    /// sprite-atlas cache key.  It must match what was returned by
-    /// `SvgStore::insert` for the same SVG bytes.
+    /// Derived from a content hash of the SVG bytes so identical formulas reuse
+    /// the same rasterized atlas tile across frames.
     path: SharedString,
+
+    /// Raw UTF-8 SVG bytes, passed directly to `Window::paint_svg`.
+    data: Arc<[u8]>,
 
     /// Intrinsic width in logical (device-independent) pixels.
     ///
@@ -81,7 +84,7 @@ pub struct SvgInlineElement {
     /// RGBA color tint applied to the SVG alpha mask at paint time.
     ///
     /// `paint_svg` treats the SVG as a single-channel alpha mask and multiplies
-    /// this color against it.  Use `gpui::black()` for traditional dark-on-
+    /// this color against it.  Use `gpui_kit::black()` for traditional dark-on-
     /// white math, or any `Hsla` value for themed rendering (e.g. adapting to
     /// a dark-mode background without re-rasterizing the SVG).
     color: Hsla,
@@ -92,21 +95,22 @@ impl SvgInlineElement {
     ///
     /// # Parameters
     ///
-    /// - `path`  — The path key returned by `SvgStore::insert` for this SVG.
-    ///             Accepts anything that converts `Into<SharedString>` (a
-    ///             `SharedString`, `&str`, `String`, etc.).
+    /// - `path`  — Sprite-atlas cache key for this SVG (e.g. content-hash path).
+    /// - `data`  — Shared SVG bytes passed directly to `Window::paint_svg`.
     /// - `width` — Logical pixel width of the rendered formula.
     /// - `height`— Logical pixel height of the rendered formula.
     /// - `color` — Tint color for the alpha-mask sprite.  Accepts anything
-    ///             `Into<Hsla>` — `gpui::black()`, `gpui::white()`, etc.
+    ///             `Into<Hsla>` — `gpui_kit::black()`, `gpui_kit::white()`, etc.
     pub fn new(
         path: impl Into<SharedString>,
+        data: Arc<[u8]>,
         width: Pixels,
         height: Pixels,
         color: impl Into<Hsla>,
     ) -> Self {
         Self {
             path: path.into(),
+            data,
             width,
             height,
             color: color.into(),
@@ -250,7 +254,8 @@ impl Element for SvgInlineElement {
     ) {
         let _ = window.paint_svg(
             bounds,                        // where to draw (position + size)
-            self.path.clone(),             // which SVG to look up in SvgStore
+            self.path.clone(),             // sprite-atlas cache key
+            Some(&self.data),              // raw SVG bytes passed directly
             TransformationMatrix::unit(),  // no extra transform — identity matrix
             self.color,                    // tint color applied to the alpha mask
             cx,

@@ -1,4 +1,4 @@
-use gpui::{Hsla, px, Point, BoxShadow};
+use gpui_kit::{Hsla, px, Point, BoxShadow};
 
 pub mod titlebar {
     pub const TITLE_PLACEHOLDER: &str = "Circuit Title";
@@ -47,12 +47,14 @@ pub mod gate_button {
         color: Hsla { h: 0.0, s: 0.0, l: 0.0, a: 1.0 },
         offset: Point { x: px(0.0), y: px(1.0) },
         blur_radius: px(3.0),
-        spread_radius: px(0.0)
+        spread_radius: px(0.0),
+        inset: false,
     };
     pub const BOX_BORDER: BoxShadow = BoxShadow {
         color: BUTTON_SELECTED,
         offset: Point { x: px(0.0), y: px(0.0) },
         blur_radius: px(0.0),
-        spread_radius: px(1.0)
+        spread_radius: px(1.0),
+        inset: false,
     };
 }

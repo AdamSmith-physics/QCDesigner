@@ -1,4 +1,4 @@
-use gpui::*;
+use gpui_kit::*;
 use crate::models::Circuit;
 use crate::utils::{Coordinate, GateType, dimensions};
 use crate::components::{ ScrollCenter, MeasuredElement, add_gate_button, gate_button };

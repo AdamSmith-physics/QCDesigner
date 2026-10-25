@@ -4,11 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-gpui = { version = "*" }
-gpui-component = "0.5.1"
-gpui-component-assets = "0.5.1"
+gpui-kit = "0.8.0"
 rust-embed = { version = "8.7.2", features = ["interpolate-folder-path"] }
-core-text = "=21.0.0"
 anyhow = "1.0.100"
 base64 = "0.22"      # Encodes SVG for GPUI
 typst = "0.14.2"

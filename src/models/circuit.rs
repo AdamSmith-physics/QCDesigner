@@ -1,4 +1,4 @@
-use gpui::Context;
+use gpui_kit::Context;
 
 use crate::models::{RenderSettings, Gate};
 use crate::utils::{GateType, GateId, Coordinate};

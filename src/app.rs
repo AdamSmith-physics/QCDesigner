@@ -1,4 +1,4 @@
-use gpui::*;
+use gpui_kit::*;
 
 // --- Actions ---
 
@@ -17,12 +17,14 @@ pub fn init(cx: &mut App) {
             items: vec![
                 MenuItem::action("Quit", Quit),
             ],
+            disabled: false,
         },
         Menu {
             name: "File".into(),
             items: vec![
                 MenuItem::action("Save", SaveFile),
             ],
+            disabled: false,
         },
     ]);
 

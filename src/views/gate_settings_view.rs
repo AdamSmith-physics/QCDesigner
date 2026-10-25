@@ -1,9 +1,9 @@
-use gpui::*;
-use gpui_component::{
+use gpui_kit::*;
+use gpui_kit::component::{
     Sizable, 
     button::{Button, Toggle, ToggleGroup, ToggleVariants}, 
     input::{InputState, InputEvent, Input}, 
-    divider::Divider,
+    separator::Separator,
     switch::Switch,
     v_flex, h_flex,
 };
@@ -81,7 +81,7 @@ impl GateSettingsView {
      ) {
          match event {
              InputEvent::Change => {},
-             InputEvent::PressEnter { secondary } => {
+             InputEvent::PressEnter { secondary: _, .. } => {
                  let text = state.read(cx).value();
                  if state == &self.label_input {
                      self.circuit.update(cx, |circuit, cx| {
@@ -157,7 +157,7 @@ impl Render for GateSettingsView {
                             }))
                     )
             )
-            .child(Divider::horizontal().w_full().pt_2());
+            .child(Separator::horizontal().w_full().pt_2());
 
 
         match selected_gate_id {

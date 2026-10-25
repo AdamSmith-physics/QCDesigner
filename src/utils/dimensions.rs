@@ -1,4 +1,4 @@
-use gpui::{Pixels, px};
+use gpui_kit::{Pixels, px};
 
 // --- Global dimensions ---
 

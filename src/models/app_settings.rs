@@ -1,5 +1,5 @@
-use gpui::Global;
-use gpui_component::ThemeMode;
+use gpui_kit::Global;
+use gpui_kit::component::ThemeMode;
 
 /// Global application settings — theme mode.
 pub struct AppSettings {

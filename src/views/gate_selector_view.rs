@@ -1,5 +1,5 @@
-use gpui::*;
-use gpui_component::{
+use gpui_kit::*;
+use gpui_kit::component::{
     tab::TabBar,
     v_flex
 };
