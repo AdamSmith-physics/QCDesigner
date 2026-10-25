@@ -5,12 +5,13 @@ edition = "2024"
 
 [dependencies]
 gpui-kit = "0.8.0"
-rust-embed = { version = "8.7.2", features = ["interpolate-folder-path"] }
-anyhow = "1.0.100"
-base64 = "0.22"      # Encodes SVG for GPUI
-typst = "0.14.2"
-typst-svg = "0.14.2"
-typst-render = "0.14.2"
-comemo = "0.4"
-time = "0.3"
+rust-embed = { version = "8.13.0", features = ["interpolate-folder-path"] }
+anyhow = "1.0.104"
+base64 = "0.23.1"      # Encodes SVG for GPUI
+typst = "0.15.1"
+typst-layout = "0.15.1"
+typst-svg = "0.15.1"
+typst-render = "0.15.1"
+comemo = "0.5.1"
+time = "0.3.55"
 tex2typst-rs = "0.4.1"

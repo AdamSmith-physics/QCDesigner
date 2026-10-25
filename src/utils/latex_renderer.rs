@@ -25,12 +25,12 @@ use std::sync::OnceLock;
 use tex2typst_rs::tex2typst;
 use time::OffsetDateTime;
 use typst::diag::{FileError, FileResult};
-use typst::foundations::{Bytes, Datetime};
-use typst::layout::PagedDocument;
+use typst::foundations::{Bytes, Datetime, Duration};
 use typst::syntax::{FileId, Source};
 use typst::text::{Font, FontBook};
 use typst::utils::LazyHash;
 use typst::{Library, LibraryExt, World};
+use typst_layout::PagedDocument;
 
 // ---------------------------------------------------------------------------
 // Public output type
@@ -132,7 +132,7 @@ pub fn latex_to_svg(latex: &str, font_size_px: f32) -> Result<LatexSvg, String> 
     // `typst_svg::svg` is Typst's own SVG back-end; it embeds the font glyphs
     // as paths so the output is fully self-contained (no external font needed
     // by the SVG renderer).
-    let svg_str = typst_svg::svg(&document.pages[0]);
+    let svg_str = typst_svg::svg(&document.pages()[0], &typst_svg::SvgOptions::default());
 
     // Step 5: Extract the intrinsic dimensions from the SVG attributes so the
     // caller can size the GPUI element correctly without parsing the SVG again.
@@ -313,7 +313,7 @@ impl World for StubWorld {
     /// `offset: None` means "use UTC".  We ignore the offset for simplicity
     /// because our math documents never call `datetime.today()`, but Typst
     /// may invoke this method during library initialisation.
-    fn today(&self, _offset: Option<i64>) -> Option<Datetime> {
+    fn today(&self, _offset: Option<Duration>) -> Option<Datetime> {
         Some(Datetime::Date(self.time.date()))
     }
 }
